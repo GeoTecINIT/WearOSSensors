@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "es.uji.geotec.wearossensorsdemo"
-        minSdk 26
+        minSdk 23
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -28,7 +28,6 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.wear:wear:1.0.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
     implementation project(path: ':wearossensors')
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
 }
