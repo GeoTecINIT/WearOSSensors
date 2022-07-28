@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- NOTIFICATION'S STRINGS -->
+    <string name="request_permissions_channel_description">Request of permissions</string>
+    <string name="permissions_notification_title">Permissions required</string>
+    <string name="permissions_notification_text">The app needs some permissions in order to work properly</string>
+
+    <string name="sensor_recording_channel_description">Sensorization</string>
+    <string name="sensorization_notification_title">WearOS Sensorization</string>
+    <string name="sensorization_notification_text">Collecting data from wearable sensors</string>
+
+</resources>

@@ -1,0 +1,87 @@
+plugins {
+    id 'maven-publish'
+    id 'com.android.library'
+}
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 26
+        targetSdkVersion 31
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    publishing {
+        singleVariant('release') {
+            withJavadocJar()
+            withSourcesJar()
+        }
+    }
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.GeotecINIT'
+            artifactId = 'WearOSSensors'
+            version = '1.0.0'
+
+            afterEvaluate {
+                from components.release
+            }
+
+            pom {
+                name = 'WearOSSensors'
+                description = 'The WearOSSensors library is an Android library that allows to' +
+                        ' collect data from the sensors of an Android WearOS Smartwatch.' +
+                        ' Concretely, it can collect samples from the IMU sensors (i.e., accelerometer and gyroscope),' +
+                        ' the magnetometer, the heart rate, and the GPS (if they are present in the device).' +
+                        ' The collected data is sent to a paired smartphone. It also allow to communicate' +
+                        ' with the smartphone by sending messages.'
+                url = 'https://github.com/GeoTecINIT/BackgroundSensors'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://github.com/GeoTecINIT/WearOSSensors/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'matey'
+                        name = 'Miguel Matey Sanz'
+                        email = 'matey@uji.es'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/GeoTecINIT/WearOSSensors.git'
+                    developerConnection = 'scm:git:ssh://github.com/GeoTecINIT/WearOSSensors.git'
+                    url = 'https://github.com/GeoTecINIT/WearOSSensors'
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-wearable:17.1.0'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    api 'com.github.GeotecINIT:BackgroundSensors:1.0.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

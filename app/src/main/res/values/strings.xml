@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">WearOS Sensors</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+    <string name="info_command_txt">Tap START ALL/STOP ALL to instruct the smartphone to request/cancel updates for each sensor</string>
+    <string name="start_all_btn">Start all</string>
+    <string name="stop_all_btn">Stop all</string>
+    <string name="info_command_single_txt">Tap START/STOP to instruct the smartphone to request/cancel updates for the selected sensor</string>
+    <string name="start_btn">Start</string>
+    <string name="stop_btn">Stop</string>
+    <string name="info_free_txt">You can also send and receive custom messages to/from the smartphone. Tap \"SEND TEST\" to send a message to the smartphone</string>
+    <string name="send_free_btn">SEND TEST</string>
+</resources>
