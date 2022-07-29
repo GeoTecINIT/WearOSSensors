@@ -6,14 +6,15 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.wearable.CapabilityClient;
-import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.Set;
+
+import es.uji.geotec.backgroundsensors.collection.CollectionConfiguration;
+import es.uji.geotec.backgroundsensors.sensor.Sensor;
 
 public class CommandClient {
 
@@ -25,7 +26,34 @@ public class CommandClient {
         this.messageClient = Wearable.getMessageClient(context);
     }
 
-    public void sendCommand(String command) {
+    public void sendStartCommand(CollectionConfiguration configuration) {
+        sendCommand(
+                "start-" + configuration.getSensor().toString().toLowerCase(),
+                configuration.getSensorDelay(),
+                configuration.getBatchSize()
+        );
+    }
+
+    public void sendStopCommand(Sensor sensor) {
+        sendCommand("stop-" + sensor.toString().toLowerCase());
+    }
+
+    private void sendCommand(String commandName, int sensorDelay, int batchSize) {
+        String command = commandFromParameters(commandName, sensorDelay, batchSize);
+        sendCommand(command);
+    }
+
+    private String commandFromParameters(String commandName, int sensorDelay, int batchSize) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(commandName);
+        sb.append("#");
+        sb.append(sensorDelay);
+        sb.append("#");
+        sb.append(batchSize);
+        return sb.toString();
+    }
+
+    private void sendCommand(String command) {
         capabilityClient.getCapability("main-node", CapabilityClient.FILTER_ALL)
                 .addOnSuccessListener(capabilityInfo -> {
                     Set<Node> mainNodes = capabilityInfo.getNodes();
@@ -41,18 +69,5 @@ public class CommandClient {
                         Log.d("Failure", e.getMessage());
                     }
                 });
-    }
-
-    public void sendCommand(String commandName, int sensorDelay, int batchSize) {
-        String command = commandFromParameters(commandName, sensorDelay, batchSize);
-        sendCommand(command);
-    }
-
-    private String commandFromParameters(String commandName, int sensorDelay, int batchSize) {
-        return String.join("#",
-                commandName,
-                String.valueOf(sensorDelay),
-                String.valueOf(batchSize)
-        );
     }
 }

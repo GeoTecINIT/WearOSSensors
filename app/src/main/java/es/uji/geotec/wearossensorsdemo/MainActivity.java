@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import es.uji.geotec.backgroundsensors.collection.CollectionConfiguration;
 import es.uji.geotec.backgroundsensors.sensor.Sensor;
 import es.uji.geotec.backgroundsensors.sensor.SensorManager;
 import es.uji.geotec.wearossensors.command.CommandClient;
@@ -21,7 +22,7 @@ import es.uji.geotec.wearossensors.sensor.WearSensor;
 public class MainActivity extends Activity {
 
     private LinearLayout linearLayout;
-    private Button startAll, stopAll, startSingle, stopSingle;
+    private Button  startSingle, stopSingle;
     private Spinner sensorSpinner;
 
     private CommandClient commandClient;
@@ -51,30 +52,25 @@ public class MainActivity extends Activity {
         PermissionsManager.setPermissionsActivity(this, RequestPermissionsActivity.class);
     }
 
-    public void onStartAllCommandTap(View view) {
-        toggleVisibility(stopAll, startAll);
-        commandClient.sendCommand("start-all");
-    }
-
-    public void onStopAllCommandTap(View view) {
-        toggleVisibility(startAll, stopAll);
-        commandClient.sendCommand("stop-all");
-    }
-
     public void onStartSingleCommandTap(View view) {
         toggleVisibility(stopSingle, startSingle);
-        String selectedSensor = (String) sensorSpinner.getSelectedItem();
+        Sensor selectedSensor = (Sensor) sensorSpinner.getSelectedItem();
         sensorSpinner.setEnabled(false);
 
-        commandClient.sendCommand("start-" + selectedSensor.toLowerCase());
+        CollectionConfiguration config = new CollectionConfiguration(
+                selectedSensor,
+                android.hardware.SensorManager.SENSOR_DELAY_GAME,
+                selectedSensor == WearSensor.HEART_RATE || selectedSensor == WearSensor.LOCATION ? 1 : 50
+        );
+        commandClient.sendStartCommand(config);
     }
 
     public void onStopSingleCommandTap(View view) {
         toggleVisibility(startSingle, stopSingle);
-        String selectedSensor = (String) sensorSpinner.getSelectedItem();
+        Sensor selectedSensor = (Sensor) sensorSpinner.getSelectedItem();
         sensorSpinner.setEnabled(true);
 
-        commandClient.sendCommand("stop-" + selectedSensor.toLowerCase());
+        commandClient.sendStopCommand(selectedSensor);
     }
 
     public void onSendFreeMessageTap(View view) {
@@ -91,8 +87,6 @@ public class MainActivity extends Activity {
     }
 
     private void setupButtons() {
-        startAll = findViewById(R.id.start_all_command);
-        stopAll = findViewById(R.id.stop_all_command);
         startSingle = findViewById(R.id.start_single_command);
         stopSingle = findViewById(R.id.stop_single_command);
     }
@@ -102,10 +96,10 @@ public class MainActivity extends Activity {
 
         SensorManager sensorManager = new SensorManager(this);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        ArrayAdapter<Sensor> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         for (Sensor sensor : sensorManager.availableSensors(WearSensor.values())) {
-            adapter.add(sensor.toString());
+            adapter.add(sensor);
         }
 
         sensorSpinner.setAdapter(adapter);
