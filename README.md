@@ -108,14 +108,14 @@ has to grant some permissions. The library handles this situation (i.e., when pe
 launches a notification to warn the user that some permissions need to be granted. However, we **do not**
 provide a mechanism to ask the permissions, we delegate that task on the developer. Why? To customise the
 way the permissions are required. In other words, the developer has to provide a class reference of an
-activity for requesting permissions, and the library will start that activity when any permission is
-required and the user taps into the notification warning him/her.
+activity for requesting permissions using the [`PermissionsManager`](#permissionsmanager), and the library
+will start that activity when any permission is required and the user taps into the notification warning him/her.
 
 We have tried to make it easy for you to implement that activity:
-- You have access to the permissions that you have to request.
+- You have access to the permissions that you have to request using the [`IntentManager`](#intentmanager).
 - After the user grants or denies a permission, you have to tell the smartphone that which permissions
-  have been granted and which ones not. Remember: the smartphone is the one who starts the data collection, including
-  the request for permissions.
+  have been granted and which ones not using the [`MessagingClient`](#messagingclient). 
+  Remember: the smartphone is the one who starts the data collection, including the request for permissions.
   
 Here you can see an example of an activity for requesting permissions:
 ```java
@@ -169,7 +169,9 @@ it that the smartwatch wants to start/stop the data collection in order to setup
 things in the smartphone side. Then, the smartphone will _instruct_ the smartwatch to start 
 or stop the data collection.
 
-In order to send those _commands_ you can use the `CommandClient`. Here you can see a sample usage:
+In order to send those _commands_ you can use the [`CommandClient`](#commandclient). Also, the sensors are defined in 
+[`WearSensor`](#wearsensor) and you can get the sensors that are available using the [`SensorManager`](#sensormanager).
+Here you can see a sample usage:
 
 ```java
 public class MainActivity extends Activity {
@@ -180,6 +182,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         // ...
         commandClient = new CommandClient(this);
+    }
+    
+    public void setupUI() {
+        List<Sensor> availableSensors = sensorManager.availableSensors(WearSensor.values());
     }
 
     public void onStartSingleCommandTap(Sensor sensor) {
@@ -199,12 +205,13 @@ public class MainActivity extends Activity {
 }
 ```
 
-> **Note**: Here we are using `Sensor` and `CollectionConfiguration` from [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors).
+> **Note**: Here we are using [`Sensor`](#sensor) and [`CollectionConfiguration`](#collectionconfiguration)
+> from [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors).
 > Check its documentation for more information.
 
 ### Messaging
 When having a system composed by several devices (two, in our case), it is important to have a way to
-communicate. We provide the `MessagingClient`, which allows to send and receive string based messages.
+communicate. We provide the [`FreeMessagingClient`](#freemessagingclient), which allows to send and receive string based messages.
 There are two types of received messages: the ones which require a response and the ones which don't.
 For now, sending messages with required response is only available from the smartphone side.
 
@@ -213,15 +220,15 @@ Here you can see an example on how to use the messaging feature:
 ```java
 public class MainActivity extends Activity {
     // ...
-    private MessagingClient messagingClient;
+    private FreeMessagingClient freemessagingClient;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
-        messagingClient = new MessagingClient(this);
+        freemessagingClient = new FreeMessagingClient(this);
         
         // Register a listener for the messages
-        messageClient.registerListener(message -> {
+        freemessagingClient.registerListener(message -> {
             Log.d("MainActivity", "received " + message);
     
             // We received a message with response required so...
@@ -229,7 +236,7 @@ public class MainActivity extends Activity {
                 Log.d("MainActivity", "response required! sending response...");
                 // We send a response
                 FreeMessage response = new FreeMessage("PONG!", message.getFreeMessage());
-                messageClient.send(response);
+                freemessagingClient.send(response);
             }
         });
     }
@@ -246,7 +253,68 @@ and [RequestPermissionsActivity](app/src/main/java/es/uji/geotec/wearossensorsde
 of the demo application.
 
 ## API
-TODO
+
+### [`WearSensor`](wearossensors/src/main/java/es/uji/geotec/wearossensors/sensor/WearSensor.java)
+| **Value**       | **Description**                      |
+|-----------------|--------------------------------------|
+| `ACCELEROMETER` | Represents the accelerometer sensor. |
+| `GYROSCOPE`     | Represents the gyroscope sensor.     |
+| `MAGNETOMETER`  | Represents the magnetometer sensor.  |
+| `HEART_RATE`    | Represents the heart rate monitor.   |
+| `LOCATION`      | Represents the GPS.                  |
+
+### `SensorManager`
+Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
+
+### [`MessagingClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/messaging/MessagingClient.java)
+| **Method**                                                                                                   | **Return type** | **Description**                                                                             |
+|--------------------------------------------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------|
+| `sendSuccessfulResponse(String sourceNodeId, ResultMessagingProtocol protocol)`                              | `void`          | Sends a successful response to an action (e.g., permission request).                        |
+| `sendFailureResponse(String sourceNodeId, ResultMessagingProtocol protocol)`                                 | `void`          | Sends a failure response to an action (mainly for internal use).                            |
+| `sendFailureResponseWithReason(String sourceNodeId, ResultMessagingProtocol protocol, String failureReason)` | `void`          | Sends a failure response to an action, including a message (e.g., permissions not granted). |
+| `sendNewRecord(String sourceNodeId, String path, byte[] record)`                                             | `void`          | Sends a new record of a sensor to the smartphone (for internal use only).                   |
+
+### [`CommandClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/command/CommandClient.java)
+| **Method**                                                | **Return type** | **Description**                                                                                               |
+|-----------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------|
+| `sendStartCommand(CollectionConfiguration configuration)` | `void`          | Sends a command to the smartphone to start the collection in the smartwatch with the specified configuration. |
+| `sendStopCommand(Sensor sensor)`                          | `void`          | Sends a command to the smartphone to stop the collection of the specified sensor in the smartwatch.           |
+
+#### CollectionConfiguration
+Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors#collectionconfiguration) documentation.
+
+#### Sensor
+Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
+
+### [`FreeMessageClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/freemessage/FreeMessageClient.java)
+| **Method**                                       | **Return type** | **Description**                                     |
+|--------------------------------------------------|-----------------|-----------------------------------------------------|
+| `registerListener(FreeMessageListener listener)` | `void`          | Registers the listener for the messaging feature.   |
+| `unregisterListener()`                           | `void`          | Unregisters the listener for the messaging feature. |
+| `send(FreeMessage freeMessage)`                  | `void`          | Sends a message to the smartphone.                  |
+
+#### [`FreeMessage`](wearossensors/src/main/java/es/uji/geotec/wearossensors/freemessage/FreeMessage.java)
+| **Field**        |  **Type**     | **Description**                                                                             |
+|------------------|---------------|---------------------------------------------------------------------------------------------|
+| `message`        | `String`      | Content of the message.                                                                     |
+| `inResponseTo`   | `FreeMessage` | If the message is a response to other one, the reference to that message. `null` otherwise. |
+
+
+### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
+| **Static Method**                                                       | **Return type** | **Description**                                                            |
+|-------------------------------------------------------------------------|---------------------|------------------------------------------------------------------------|
+| `permissionsToBeRequested(Context context, ArrayList<String> required)` | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only). |
+| `requestPermissions(Activity activity, ArrayList<String> permissions)`  | `void`              | Request the specified permissions.                                     |
+| `setPermissionsActivity(Context context, Class<?> permissionsActivity)` | `void`              | Sets up the class that will be used for requesting permissions.        |
+| `getPermissionsActivity(Context context)`                               | `Class<?>`          | Gets the class that will be used for requesting permissions.           |
+
+### [`IntentManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/intent/IntentManager.java)
+| **Static Method**                               | **Return type**          | **Description**                                                                                                      |
+|-------------------------------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `permissionsToRequestFromIntent(Intent intent)` | `void`                   | Gets the permissions that need to be requested from an intent. To use in your custom permissions requester activity. |
+| `sourceNodeIdFromIntent(Intent intent)`         | `String`                 | Gets the identifier of the smartphone from an intent. To use in your custom permissions requester activity.          |
+| `resultProtocolFromIntent(Intent intent)`       | `ResultMessagingProtocol`| Gets a communication protocol from an intent. To use in your custom permissions requester activity.                  |
+
 
 ## License
 
