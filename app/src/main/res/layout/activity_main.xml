@@ -24,34 +24,6 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/info_command"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:justificationMode="inter_word"
-                    android:text='@string/info_command_txt' />
-
-                <Button
-                    android:id="@+id/start_all_command"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center|center_horizontal"
-                    android:layout_margin="10dp"
-                    android:onClick="onStartAllCommandTap"
-                    android:text="@string/start_all_btn" />
-
-                <Button
-                    android:id="@+id/stop_all_command"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center|center_horizontal"
-                    android:layout_margin="10dp"
-                    android:onClick="onStopAllCommandTap"
-                    android:visibility="gone"
-                    android:text="@string/stop_all_btn" />
-
-                <TextView
                     android:id="@+id/info_command_single"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
