@@ -83,6 +83,7 @@ The library has the following requirements:
 - _(Optional)_ Apps willing to collect location data from the GPS of the device must add the next permission:
 
 ```xml
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
