@@ -86,10 +86,164 @@ The library has the following requirements:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-> **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors)
+> **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors).
 
 ## Usage
-TODO
+The library offers two main features:
+
+- [Sensor data collection](#sensor-data-collection): it can be started/stopped from the paired smartphone or from the smartwatch itself.
+- [Messaging](#messaging): it allows to send and receive simple messages between both devices.
+
+### Sensor data collection
+The library allows to collect data from the accelerometer, gyroscope, magnetometer, heart rate and GPS sensors
+of the smartwatch device. For the data collection, the application in the smartwatch acts as a _slave_
+application, where the _master_ application is the on in the smartphone. This means that the smartphone is 
+who _instructs_ the smartwatch to start/stop the data collection, even when is the smartwatch who wants to start/stop the data collection.
+
+Before going deeper with the data collection, we have to talk about permissions.
+
+#### Permissions
+In order to access to the data of the heart rate and the GPS sensors, the user
+has to grant some permissions. The library handles this situation (i.e., when permissions are required), and
+launches a notification to warn the user that some permissions need to be granted. However, we **do not**
+provide a mechanism to ask the permissions, we delegate that task on the developer. Why? To customise the
+way the permissions are required. In other words, the developer has to provide a class reference of an
+activity for requesting permissions, and the library will start that activity when any permission is
+required and the user taps into the notification warning him/her.
+
+We have tried to make it easy for you to implement that activity:
+- You have access to the permissions that you have to request.
+- After the user grants or denies a permission, you have to tell the smartphone that which permissions
+  have been granted and which ones not. Remember: the smartphone is the one who starts the data collection, including
+  the request for permissions.
+  
+Here you can see an example of an activity for requesting permissions:
+```java
+public class YourRequestPermissionsActivity extends FragmentActivity {
+    protected void onCreate(Bundle savedInstanceState) {
+        // ...
+
+        // Get permissions to request
+        ArrayList<String> permissionsToRequest = IntentManager.permissionsToRequestFromIntent(getIntent());
+        
+        // You can show a message explaining why you are going to request permissions
+        // and then...
+        PermissionsManager.requestPermissions(this, permissions);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        // Check which permissions are granted and which ones rejected
+      
+        // Tell the smartphone if ...
+        MessagingClient messagingClient = new MessagingClient(this);
+        String sourceNodeId = IntentManager.sourceNodeIdFromIntent(getIntent());
+        ResultMessagingProtocol protocol = IntentManager.resultProtocolFromIntent(getIntent());
+        
+        // all permissions are granted ...
+        messagingClient.sendSuccessfulResponse(sourceNodeId, protocol);
+        
+        // or if any permission was rejected (include in your failure message which permission were rejected)
+        messagingClient.sendFailureResponseWithReason(sourceNodeId, protocol, failureMessage);
+    }
+}
+```
+
+Finally, here is a sample on how to setup a your activity for requesting permissions:
+```java
+public class MainActivity extends Activity {
+    protected void onCreate(Bundle savedInstanceState) {
+        // ...
+      
+        PermissionsManager.setPermissionsActivity(this, YourRequestPermissionsActivity.class);
+    }
+}
+```
+
+#### Start/stop data collection from smartphone
+The library fully handles this for you. You have to do nothing!
+
+#### Start/stop data collection from smartwatch
+In this case, the smartwatch wants to send a _command_ to the smartphone to tell
+it that the smartwatch wants to start/stop the data collection in order to setup
+things in the smartphone side. Then, the smartphone will _instruct_ the smartwatch to start 
+or stop the data collection.
+
+In order to send those _commands_ you can use the `CommandClient`. Here you can see a sample usage:
+
+```java
+public class MainActivity extends Activity {
+    // ...
+    private CommandClient commandClient;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // ...
+        commandClient = new CommandClient(this);
+    }
+
+    public void onStartSingleCommandTap(Sensor sensor) {
+        CollectionConfiguration config = new CollectionConfiguration(
+                selectedSensor,
+                android.hardware.SensorManager.SENSOR_DELAY_GAME,
+                selectedSensor == WearSensor.HEART_RATE || selectedSensor == WearSensor.LOCATION ? 1 : 50
+        );
+        commandClient.sendStartCommand(config);
+    }
+
+    public void onStopSingleCommandTap(Sensor sensor) {
+        commandClient.sendStopCommand(selectedSensor);
+    }
+    
+    // ...
+}
+```
+
+> **Note**: Here we are using `Sensor` and `CollectionConfiguration` from [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors).
+> Check its documentation for more information.
+
+### Messaging
+When having a system composed by several devices (two, in our case), it is important to have a way to
+communicate. We provide the `MessagingClient`, which allows to send and receive string based messages.
+There are two types of received messages: the ones which require a response and the ones which don't.
+For now, sending messages with required response is only available from the smartphone side.
+
+Here you can see an example on how to use the messaging feature:
+
+```java
+public class MainActivity extends Activity {
+    // ...
+    private MessagingClient messagingClient;
+  
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // ...
+        messagingClient = new MessagingClient(this);
+        
+        // Register a listener for the messages
+        messageClient.registerListener(message -> {
+            Log.d("MainActivity", "received " + message);
+    
+            // We received a message with response required so...
+            if (message.responseRequired()){
+                Log.d("MainActivity", "response required! sending response...");
+                // We send a response
+                FreeMessage response = new FreeMessage("PONG!", message.getFreeMessage());
+                messageClient.send(response);
+            }
+        });
+    }
+
+      public void onSendFreeMessageTap(View view) {
+            FreeMessage message = new FreeMessage("Hi! This is a test message");
+            messageClient.send(message);
+      }
+  }
+```
+
+> **Note**: you can find a full sample of all these features in the [MainActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/MainActivity.java)
+and [RequestPermissionsActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/RequestPermissionsActivity.java) activities
+of the demo application.
 
 ## API
 TODO
