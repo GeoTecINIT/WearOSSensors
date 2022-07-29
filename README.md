@@ -62,7 +62,7 @@ dependencies {
 ## Requirements
 The library has the following requirements:
 
-- An Android WearOS smartwatch running WearOS 1.0 (API level 23). In addition, the smartwatch must
+- An Android WearOS smartwatch running WearOS 1.0 (API level 23) or higher. In addition, the smartwatch must
   be paired with a smartphone with the counterpart application installed.
 
 > **Warning**: Both applications (smartwatch and smartphone apps) must have the same application id.
