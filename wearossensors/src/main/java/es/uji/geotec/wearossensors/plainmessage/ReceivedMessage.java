@@ -1,13 +1,13 @@
-package es.uji.geotec.wearossensors.freemessage;
+package es.uji.geotec.wearossensors.plainmessage;
 
 public class ReceivedMessage {
     private String senderNodeId;
-    private FreeMessage freeMessage;
+    private PlainMessage plainMessage;
     private boolean requiresResponse;
 
-    public ReceivedMessage(String senderNodeId, FreeMessage freeMessage, boolean requiresResponse) {
+    public ReceivedMessage(String senderNodeId, PlainMessage plainMessage, boolean requiresResponse) {
         this.senderNodeId = senderNodeId;
-        this.freeMessage = freeMessage;
+        this.plainMessage = plainMessage;
         this.requiresResponse = requiresResponse;
     }
 
@@ -19,12 +19,12 @@ public class ReceivedMessage {
         this.senderNodeId = senderNodeId;
     }
 
-    public FreeMessage getFreeMessage() {
-        return freeMessage;
+    public PlainMessage getPlainMessage() {
+        return plainMessage;
     }
 
-    public void setFreeMessage(FreeMessage freeMessage) {
-        this.freeMessage = freeMessage;
+    public void setPlainMessage(PlainMessage plainMessage) {
+        this.plainMessage = plainMessage;
     }
 
     public boolean responseRequired() {
@@ -39,7 +39,7 @@ public class ReceivedMessage {
     public String toString() {
         return "ReceivedMessage{" +
                 "senderNodeId='" + senderNodeId + '\'' +
-                ", freeMessage=" + freeMessage +
+                ", plainMessage=" + plainMessage +
                 ", requiresResponse=" + requiresResponse +
                 '}';
     }

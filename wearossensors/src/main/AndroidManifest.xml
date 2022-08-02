@@ -31,7 +31,7 @@
                     android:scheme="wear" />
                 <data
                     android:host="*"
-                    android:pathPattern="/free-message.*"
+                    android:pathPattern="/plain-message.*"
                     android:scheme="wear" />
             </intent-filter>
         </service>

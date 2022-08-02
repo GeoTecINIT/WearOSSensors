@@ -210,7 +210,7 @@ public class MainActivity extends Activity {
 
 ### Messaging
 When having a system composed by several devices (two, in our case), it is important to have a way to
-communicate. We provide the [`FreeMessagingClient`](#freemessagingclient), which allows to send and receive string-based messages.
+communicate. We provide the [`PlainMessageClient`](#plainmessageclient), which allows to send and receive string-based messages.
 There are two types of received messages: the ones which require a response and the ones which don't.
 For now, sending messages with required response is only available from the smartphone side.
 
@@ -219,30 +219,30 @@ Here you can see an example on how to use the messaging feature:
 ```java
 public class MainActivity extends Activity {
     // ...
-    private FreeMessagingClient freemessagingClient;
+    private PlainMessageClient plainMessageClient;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
-        freemessagingClient = new FreeMessagingClient(this);
+        plainMessageClient = new PlainMessageClient(this);
         
         // Register a listener for the messages
-        freemessagingClient.registerListener(message -> {
+        plainMessageClient.registerListener(message -> {
             Log.d("MainActivity", "received " + message);
     
             // We received a message with response required so...
             if (message.responseRequired()){
                 Log.d("MainActivity", "response required! sending response...");
                 // We send a response
-                FreeMessage response = new FreeMessage("PONG!", message.getFreeMessage());
-                freemessagingClient.send(response);
+                PlainMessage response = new PlainMessage("PONG!", message.getPlainMessage());
+                plainMessageClient.send(response);
             }
         });
     }
 
-      public void onSendFreeMessageTap(View view) {
-            FreeMessage message = new FreeMessage("Hi! This is a test message");
-            messageClient.send(message);
+      public void onSendPlainMessageTap(View view) {
+            PlainMessage message = new PlainMessage("Hi! This is a test message");
+            plainMessageClient.send(message);
       }
   }
 ```
@@ -293,18 +293,18 @@ Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSenso
 #### Sensor
 Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
 
-### [`FreeMessageClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/freemessage/FreeMessageClient.java)
-| **Method**                                       | **Return type** | **Description**                                     |
-|--------------------------------------------------|-----------------|-----------------------------------------------------|
-| `registerListener(FreeMessageListener listener)` | `void`          | Registers the listener for the messaging feature.   |
-| `unregisterListener()`                           | `void`          | Unregisters the listener for the messaging feature. |
-| `send(FreeMessage freeMessage)`                  | `void`          | Sends a message to the smartphone.                  |
+### [`PlainMessageClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/plainmessage/PlainMessageClient.java)
+| **Method**                                        | **Return type** | **Description**                                     |
+|---------------------------------------------------|-----------------|-----------------------------------------------------|
+| `registerListener(PlainMessageListener listener)` | `void`          | Registers the listener for the messaging feature.   |
+| `unregisterListener()`                            | `void`          | Unregisters the listener for the messaging feature. |
+| `send(PlainMessage plainMessage)`                 | `void`          | Sends a message to the smartphone.                  |
 
-#### [`FreeMessage`](wearossensors/src/main/java/es/uji/geotec/wearossensors/freemessage/FreeMessage.java)
+#### [`PlainMessage`](wearossensors/src/main/java/es/uji/geotec/wearossensors/plainmessage/PlainMessage.java)
 | **Field**        |  **Type**     | **Description**                                                                             |
 |------------------|---------------|---------------------------------------------------------------------------------------------|
 | `message`        | `String`      | Content of the message.                                                                     |
-| `inResponseTo`   | `FreeMessage` | If the message is a response to other one, the reference to that message. `null` otherwise. |
+| `inResponseTo`   | `PlainMessage` | If the message is a response to other one, the reference to that message. `null` otherwise. |
 
 ## License
 

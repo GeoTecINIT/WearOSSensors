@@ -1,4 +1,4 @@
-package es.uji.geotec.wearossensors.freemessage;
+package es.uji.geotec.wearossensors.plainmessage;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,27 +10,27 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.Set;
 
-public class FreeMessageClient {
+public class PlainMessageClient {
 
     private CapabilityClient capabilityClient;
     private MessageClient messageClient;
-    private FreeMessageProtocol protocol;
+    private PlainMessageProtocol protocol;
 
-    public FreeMessageClient(Context context) {
+    public PlainMessageClient(Context context) {
         this.capabilityClient = Wearable.getCapabilityClient(context);
         this.messageClient = Wearable.getMessageClient(context);
-        this.protocol = FreeMessageProtocol.getProtocol();
+        this.protocol = PlainMessageProtocol.getProtocol();
     }
 
-    public void registerListener(FreeMessageListener listener) {
-        FreeMessageHandler.getInstance().setListener(listener);
+    public void registerListener(PlainMessageListener listener) {
+        PlainMessageHandler.getInstance().setListener(listener);
     }
 
     public void unregisterListener() {
-        FreeMessageHandler.getInstance().clearListener();
+        PlainMessageHandler.getInstance().clearListener();
     }
 
-    public void send(FreeMessage freeMessage) {
+    public void send(PlainMessage plainMessage) {
         capabilityClient.getCapability("main-node", CapabilityClient.FILTER_ALL)
                 .addOnSuccessListener(capabilityInfo -> {
                     Set<Node> mainNodes = capabilityInfo.getNodes();
@@ -38,7 +38,7 @@ public class FreeMessageClient {
                         return;
 
                     Node mainNode = mainNodes.iterator().next();
-                    String jsonString = FreeMessage.encodeFreeMessage(freeMessage);
+                    String jsonString = PlainMessage.encodePlainMessage(plainMessage);
                     messageClient.sendMessage(mainNode.getId(), this.protocol.getWithoutResponsePath(), jsonString.getBytes());
                 })
                 .addOnFailureListener(e -> Log.d("Failure", e.getMessage()));

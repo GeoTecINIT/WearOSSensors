@@ -1,10 +1,10 @@
-package es.uji.geotec.wearossensors.freemessage;
+package es.uji.geotec.wearossensors.plainmessage;
 
-public class FreeMessageProtocol {
+public class PlainMessageProtocol {
     private String withoutResponsePath;
     private String expectingResponsePath;
 
-    public FreeMessageProtocol(String withoutResponsePath, String expectingResponsePath) {
+    public PlainMessageProtocol(String withoutResponsePath, String expectingResponsePath) {
         this.withoutResponsePath = withoutResponsePath;
         this.expectingResponsePath = expectingResponsePath;
     }
@@ -17,10 +17,10 @@ public class FreeMessageProtocol {
         return expectingResponsePath;
     }
 
-    public static FreeMessageProtocol getProtocol() {
-        return new FreeMessageProtocol(
-                "free-message-no-response",
-                "free-message-expecting-response"
+    public static PlainMessageProtocol getProtocol() {
+        return new PlainMessageProtocol(
+                "plain-message-no-response",
+                "plain-message-expecting-response"
         );
     }
 }
