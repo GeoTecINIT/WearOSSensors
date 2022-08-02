@@ -1,7 +1,7 @@
 # WearOS Sensors
 The _wearossensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
 (i.e., accelerometer and gyroscope), the magnetometer, the heart rate, and the GPS of an Android WearOS
-smartwatch (if the corresponding sensor are available in the device).
+smartwatch (if the corresponding sensor is available in the device).
 
 This library can be used to build WearOS applications that are the **counterpart** of smartphone applications
 built with the [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors)
@@ -16,14 +16,14 @@ then receive the collected data from the smartwatch.
 The data collection can be started both from the smartwatch and from the paired smartphone. In addition,
 the library offers a way to communicate with the smartphone by sending messages.
 
-The _wearossensors_ library uses and extends the functionality of the Android library
-[_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors), and therefore, it is safe to carry out
+The _wearossensors_ library uses and extends the functionality of the Android 
+[_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors) library, and therefore, it is safe to carry out
 the data collection in the background (i.e., when the app is not in the foreground, or the smartwatch is idle).
 
 
 ## Installation
-To install the library you have to add the [Jitpack](https://jitpack.io) repository to file where your project
-describes the repositories:
+To install the library you have to add the [Jitpack](https://jitpack.io) repository to the file where your project
+declares the URLs of the external repositories where the dependencies are looked for:
 
 <details>
   <summary>build.gradle (project)</summary>
@@ -65,7 +65,7 @@ The library has the following requirements:
 - An Android WearOS smartwatch running WearOS 1.0 (API level 23) or higher. In addition, the smartwatch must
   be paired with a smartphone with the counterpart application installed.
 
-> **Warning**: Both applications (smartwatch and smartphone apps) must have the same application id.
+> **Warning**: Both applications (smartwatch and smartphone apps) must have the same [application id](https://developer.android.com/studio/build/configure-app-module#set-application-id).
 > If that's not the case, the applications will not be able to interact.
 
 - _(Optional)_ For apps targeting an API level 31 or higher and willing to collect data from the sensors
@@ -87,7 +87,7 @@ The library has the following requirements:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-> **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors).
+> **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors) too.
 
 ## Usage
 The library offers two main features:
@@ -97,8 +97,8 @@ The library offers two main features:
 
 ### Sensor data collection
 The library allows to collect data from the accelerometer, gyroscope, magnetometer, heart rate and GPS sensors
-of the smartwatch device. For the data collection, the application in the smartwatch acts as a _slave_
-application, where the _master_ application is the on in the smartphone. This means that the smartphone is 
+of the smartwatch device. For the data collection, the application in the smartwatch acts as a _companion_
+application, where the _main_ application is the on in the smartphone. This means that the smartphone is 
 who _instructs_ the smartwatch to start/stop the data collection, even when is the smartwatch who wants to start/stop the data collection.
 
 Before going deeper with the data collection, we have to talk about permissions.
@@ -150,7 +150,7 @@ public class YourRequestPermissionsActivity extends FragmentActivity {
 }
 ```
 
-Finally, here is a sample on how to setup a your activity for requesting permissions:
+Finally, here is a sample on how to setup your activity for requesting permissions:
 ```java
 public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,7 +212,7 @@ public class MainActivity extends Activity {
 
 ### Messaging
 When having a system composed by several devices (two, in our case), it is important to have a way to
-communicate. We provide the [`FreeMessagingClient`](#freemessagingclient), which allows to send and receive string based messages.
+communicate. We provide the [`FreeMessagingClient`](#freemessagingclient), which allows to send and receive string-based messages.
 There are two types of received messages: the ones which require a response and the ones which don't.
 For now, sending messages with required response is only available from the smartphone side.
 
