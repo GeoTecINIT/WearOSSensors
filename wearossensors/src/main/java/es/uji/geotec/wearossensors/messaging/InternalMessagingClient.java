@@ -5,11 +5,11 @@ import android.content.Context;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Wearable;
 
-public class MessagingClient {
+public class InternalMessagingClient {
 
     private MessageClient messageClient;
 
-    public MessagingClient(Context context) {
+    public InternalMessagingClient(Context context) {
         this.messageClient = Wearable.getMessageClient(context);
     }
 

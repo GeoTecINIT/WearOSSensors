@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import es.uji.geotec.backgroundsensors.collection.CollectionConfiguration;
 import es.uji.geotec.backgroundsensors.sensor.SensorManager;
 import es.uji.geotec.backgroundsensors.service.manager.ServiceManager;
-import es.uji.geotec.wearossensors.messaging.MessagingClient;
+import es.uji.geotec.wearossensors.messaging.InternalMessagingClient;
 import es.uji.geotec.wearossensors.messaging.MessagingProtocol;
 import es.uji.geotec.wearossensors.messaging.ResultMessagingProtocol;
 import es.uji.geotec.wearossensors.notifications.NotificationProvider;
@@ -45,7 +45,7 @@ public abstract class AbstractMessagingHandler {
     }
 
     private void handleIsReadyRequest(String sourceNodeId) {
-        MessagingClient messageClient = new MessagingClient(context);
+        InternalMessagingClient messageClient = new InternalMessagingClient(context);
         ResultMessagingProtocol readyProtocol = getProtocol().getReadyProtocol();
         ArrayList<String> permissionsToBeRequested =
                 PermissionsManager.permissionsToBeRequested(context, getRequiredPermissions());
@@ -59,7 +59,7 @@ public abstract class AbstractMessagingHandler {
     }
 
     private void handlePrepareRequest(String sourceNodeId) {
-        MessagingClient messageClient = new MessagingClient(context);
+        InternalMessagingClient messageClient = new InternalMessagingClient(context);
         ResultMessagingProtocol prepareProtocol = getProtocol().getPrepareProtocol();
 
         if (!isSensorSupported()) {
