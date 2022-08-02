@@ -4,7 +4,7 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
 import es.uji.geotec.wearossensors.capabilities.CapabilityAdvertisementHandler;
-import es.uji.geotec.wearossensors.freemessage.FreeMessageHandler;
+import es.uji.geotec.wearossensors.plainmessage.PlainMessageHandler;
 import es.uji.geotec.wearossensors.messaging.handlers.AccelerometerMessagingHandler;
 import es.uji.geotec.wearossensors.messaging.handlers.GyroscopeMessagingHandler;
 import es.uji.geotec.wearossensors.messaging.handlers.HeartRateMessagingHandler;
@@ -30,8 +30,8 @@ public class SensorMessagingListenerService extends WearableListenerService {
             new HeartRateMessagingHandler(this).handleMessage(event);
         } else if (path.contains("location")) {
             new LocationMessagingHandler(this).handleMessage(event);
-        } else if (path.contains("free-message")) {
-            FreeMessageHandler.getInstance().handleMessage(event);
+        } else if (path.contains("plain-message")) {
+            PlainMessageHandler.getInstance().handleMessage(event);
         }
     }
 }

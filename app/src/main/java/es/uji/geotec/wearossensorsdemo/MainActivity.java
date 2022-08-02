@@ -14,8 +14,8 @@ import es.uji.geotec.backgroundsensors.collection.CollectionConfiguration;
 import es.uji.geotec.backgroundsensors.sensor.Sensor;
 import es.uji.geotec.backgroundsensors.sensor.SensorManager;
 import es.uji.geotec.wearossensors.command.CommandClient;
-import es.uji.geotec.wearossensors.freemessage.FreeMessage;
-import es.uji.geotec.wearossensors.freemessage.FreeMessageClient;
+import es.uji.geotec.wearossensors.plainmessage.PlainMessage;
+import es.uji.geotec.wearossensors.plainmessage.PlainMessageClient;
 import es.uji.geotec.wearossensors.permissions.PermissionsManager;
 import es.uji.geotec.wearossensors.sensor.WearSensor;
 
@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private Spinner sensorSpinner;
 
     private CommandClient commandClient;
-    private FreeMessageClient messageClient;
+    private PlainMessageClient messageClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +38,13 @@ public class MainActivity extends Activity {
         setupSpinner();
 
         commandClient = new CommandClient(this);
-        messageClient = new FreeMessageClient(this);
+        messageClient = new PlainMessageClient(this);
         messageClient.registerListener(message -> {
             Log.d("MainActivity", "received " + message);
 
             if (message.responseRequired()){
                 Log.d("MainActivity", "response required! sending response...");
-                FreeMessage response = new FreeMessage("PONG!", message.getFreeMessage());
+                PlainMessage response = new PlainMessage("PONG!", message.getPlainMessage());
                 messageClient.send(response);
             }
         });
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
     }
 
     public void onSendFreeMessageTap(View view) {
-        FreeMessage message = new FreeMessage("Hi! This is a test message");
+        PlainMessage message = new PlainMessage("Hi! This is a test message");
         messageClient.send(message);
     }
 

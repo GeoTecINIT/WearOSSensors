@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import es.uji.geotec.wearossensors.messaging.ResultMessagingProtocol;
 
 public class IntentManager {
+    public static final String PERMISSIONS_EXTRAS = "PERMISSIONS";
 
     private static final int PENDING_INTENT_RC = 50;
-
-    private static final String PERMISSIONS_EXTRAS = "PERMISSIONS";
     private static final String NODE = "NODE";
     private static final String PROTOCOL = "PROTOCOL";
 
@@ -39,10 +38,6 @@ public class IntentManager {
                 permissionRequester,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-    }
-
-    public static ArrayList<String> permissionsToRequestFromIntent(Intent intent) {
-        return intent.getStringArrayListExtra(PERMISSIONS_EXTRAS);
     }
 
     public static String sourceNodeIdFromIntent(Intent intent) {

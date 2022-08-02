@@ -1,28 +1,28 @@
-package es.uji.geotec.wearossensors.freemessage;
+package es.uji.geotec.wearossensors.plainmessage;
 
 import android.util.Log;
 
 import com.google.android.gms.wearable.MessageEvent;
 
-public class FreeMessageHandler {
+public class PlainMessageHandler {
 
-    private static FreeMessageHandler instance;
+    private static PlainMessageHandler instance;
 
-    private FreeMessageProtocol protocol;
-    private FreeMessageListener listener;
+    private PlainMessageProtocol protocol;
+    private PlainMessageListener listener;
 
-    private FreeMessageHandler() {
-        this.protocol = FreeMessageProtocol.getProtocol();
+    private PlainMessageHandler() {
+        this.protocol = PlainMessageProtocol.getProtocol();
     }
 
-    public static FreeMessageHandler getInstance() {
+    public static PlainMessageHandler getInstance() {
         if (instance == null) {
-            instance = new FreeMessageHandler();
+            instance = new PlainMessageHandler();
         }
         return instance;
     }
 
-    public void setListener(FreeMessageListener listener) {
+    public void setListener(PlainMessageListener listener) {
         this.listener = listener;
     }
 
@@ -45,7 +45,7 @@ public class FreeMessageHandler {
         String sourceNodeId = event.getSourceNodeId();
         String encodedMessage = new String(event.getData());
 
-        FreeMessage message = FreeMessage.decodeFreeMessage(encodedMessage);
+        PlainMessage message = PlainMessage.decodePlainMessage(encodedMessage);
         ReceivedMessage receivedMessage = new ReceivedMessage(
             sourceNodeId,
             message,
@@ -53,7 +53,7 @@ public class FreeMessageHandler {
         );
 
         if (listener == null) {
-            Log.d("FreeMessageHandler", "received message " + receivedMessage + " but there are no callbacks set");
+            Log.d("PlainMessageHandler", "received message " + receivedMessage + " but there are no callbacks set");
         }
 
         this.listener.onMessageReceived(receivedMessage);
