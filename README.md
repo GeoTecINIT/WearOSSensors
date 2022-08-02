@@ -121,7 +121,7 @@ activity for requesting permissions using the [`PermissionsManager`](#permission
 will start that activity when any permission is required and the user taps into the notification warning.
 
 We have tried to make it easy for you to implement that activity:
-- You have access to the permissions that you have to request using the [`PermissionsManager`](#permissionsmanager).
+- You can obtain the list of the permissions that are required and also to request them using the  [`PermissionsManager`](#permissionsmanager) API.
 - After the user grants or denies a permission, you have to tell the smartphone that which permissions
   have been granted and which ones not using the [`PermissionsResultClient`](#permissionsresultclient). 
   Remember: the smartphone is the one that starts the data collection, including the request for permissions.
