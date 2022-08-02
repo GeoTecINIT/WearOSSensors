@@ -64,28 +64,9 @@ The library has the following requirements:
 
 - An Android WearOS smartwatch running WearOS 1.0 (API level 23) or higher. In addition, the smartwatch must
   be paired with a smartphone with the counterpart application installed.
-
+  
 > **Warning**: Both applications (smartwatch and smartphone apps) must have the same [application id](https://developer.android.com/studio/build/configure-app-module#set-application-id).
 > If that's not the case, the applications will not be able to interact.
-
-- _(Optional)_ For apps targeting an API level 31 or higher and willing to collect data from the sensors
-  at a sampling rate higher than 200Hz, the following permission must be added:
-
-```xml
-<uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
-```
-- _(Optional)_ Apps willing to collect data from the heart rate sensor of the device must add the next permission:
-
-```xml
-<uses-permission android:name="android.permission.BODY_SENSORS" />
-```
-
-- _(Optional)_ Apps willing to collect location data from the GPS of the device must add the next permission:
-
-```xml
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
 
 > **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors) too.
 
@@ -93,6 +74,33 @@ The library has the following requirements:
 The library offers two main features:
 
 - [Sensor data collection](#sensor-data-collection): it can be started/stopped from the paired smartphone or from the smartwatch itself.
+  Some permissions must be added to the **AndroidManifest of the smartwatch device** depending on which sensor you want to collect data from:
+<details>
+  <summary>Accelerometer, gyroscope and magnetometer</summary>
+
+  If your app targets an API level 31 or higher and you will to collect data from the sensors
+  at a sampling rate higher than 200Hz, the following permission must be added to the manifest:
+
+  ```xml
+  <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+  ```
+</details>
+<details>
+  <summary>Heart rate</summary>
+
+  ```xml
+  <uses-permission android:name="android.permission.BODY_SENSORS" />
+  ```
+</details>
+<details>
+<summary>Location</summary>
+
+  ```xml
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  ```
+</details>
+
 - [Messaging](#messaging): it allows to send and receive simple messages between both devices.
 
 ### Sensor data collection
