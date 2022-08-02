@@ -2,6 +2,7 @@ package es.uji.geotec.wearossensors.permissions;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
@@ -9,11 +10,17 @@ import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 
+import es.uji.geotec.wearossensors.intent.IntentManager;
+
 public class PermissionsManager {
 
     private static final String PREFERENCES_NAME = "WEAROSSENSORS_PREFS";
     private static final String PERMISSIONS_ACTIVITY_KEY = "PERMISSIONS_ACTIVITY";
     public static final int PERMISSIONS_RC = 51;
+
+    public static ArrayList<String> permissionsToRequestFromIntent(Intent intent) {
+        return intent.getStringArrayListExtra(IntentManager.PERMISSIONS_EXTRAS);
+    }
 
     public static ArrayList<String> permissionsToBeRequested(Context context, ArrayList<String> required) {
         ArrayList<String> toBeRequested = new ArrayList<>(required.size());

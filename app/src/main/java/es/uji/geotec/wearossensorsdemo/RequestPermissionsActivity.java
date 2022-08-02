@@ -14,10 +14,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import es.uji.geotec.wearossensors.intent.IntentManager;
-import es.uji.geotec.wearossensors.messaging.MessagingClient;
-import es.uji.geotec.wearossensors.messaging.ResultMessagingProtocol;
 import es.uji.geotec.wearossensors.permissions.PermissionsManager;
+import es.uji.geotec.wearossensors.permissions.PermissionsResultClient;
 
 public class RequestPermissionsActivity extends FragmentActivity {
 
@@ -39,7 +37,7 @@ public class RequestPermissionsActivity extends FragmentActivity {
         delayer.schedule(new TimerTask() {
             @Override
             public void run() {
-                ArrayList<String> permissionsToRequest = IntentManager.permissionsToRequestFromIntent(getIntent());
+                ArrayList<String> permissionsToRequest = PermissionsManager.permissionsToRequestFromIntent(getIntent());
                 requestPermissions(permissionsToRequest);
             }
         }, 500);
@@ -63,11 +61,9 @@ public class RequestPermissionsActivity extends FragmentActivity {
 
         progressBar.setVisibility(View.GONE);
 
-        MessagingClient messagingClient = new MessagingClient(this);
-        String sourceNodeId = IntentManager.sourceNodeIdFromIntent(getIntent());
-        ResultMessagingProtocol protocol = IntentManager.resultProtocolFromIntent(getIntent());
+        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
         if (permissionsRejected.size() == 0) {
-            messagingClient.sendSuccessfulResponse(sourceNodeId, protocol);
+            permissionsResultClient.sendPermissionsSuccessfulResponse(getIntent());
             descriptionText.setText("Thanks! :D");
             checkIcon.setVisibility(View.VISIBLE);
             finishDeferred();
@@ -75,7 +71,7 @@ public class RequestPermissionsActivity extends FragmentActivity {
         }
 
         String failureMessage = buildFailureMessage(permissionsRejected);
-        messagingClient.sendFailureResponseWithReason(sourceNodeId, protocol, failureMessage);
+        permissionsResultClient.sendPermissionsFailureResponse(getIntent(), failureMessage);
         descriptionText.setText("Permissions denied :(");
         failIcon.setVisibility(View.VISIBLE);
         finishDeferred();

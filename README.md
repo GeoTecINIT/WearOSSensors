@@ -110,13 +110,13 @@ launches a notification to warn the user that some permissions need to be grante
 provide a mechanism to ask the permissions, we delegate that task on the developer. Why? To customise the
 way the permissions are required. In other words, the developer has to provide a class reference of an
 activity for requesting permissions using the [`PermissionsManager`](#permissionsmanager), and the library
-will start that activity when any permission is required and the user taps into the notification warning him/her.
+will start that activity when any permission is required and the user taps into the notification warning.
 
 We have tried to make it easy for you to implement that activity:
-- You have access to the permissions that you have to request using the [`IntentManager`](#intentmanager).
+- You have access to the permissions that you have to request using the [`PermissionsManager`](#permissionsmanager).
 - After the user grants or denies a permission, you have to tell the smartphone that which permissions
-  have been granted and which ones not using the [`MessagingClient`](#messagingclient). 
-  Remember: the smartphone is the one who starts the data collection, including the request for permissions.
+  have been granted and which ones not using the [`PermissionsResultClient`](#permissionsresultclient). 
+  Remember: the smartphone is the one that starts the data collection, including the request for permissions.
   
 Here you can see an example of an activity for requesting permissions:
 ```java
@@ -125,7 +125,7 @@ public class YourRequestPermissionsActivity extends FragmentActivity {
         // ...
 
         // Get permissions to request
-        ArrayList<String> permissionsToRequest = IntentManager.permissionsToRequestFromIntent(getIntent());
+        ArrayList<String> permissionsToRequest = PermissionsManager.permissionsToRequestFromIntent(getIntent());
         
         // You can show a message explaining why you are going to request permissions
         // and then...
@@ -137,15 +137,13 @@ public class YourRequestPermissionsActivity extends FragmentActivity {
         // Check which permissions are granted and which ones rejected
       
         // Tell the smartphone if ...
-        MessagingClient messagingClient = new MessagingClient(this);
-        String sourceNodeId = IntentManager.sourceNodeIdFromIntent(getIntent());
-        ResultMessagingProtocol protocol = IntentManager.resultProtocolFromIntent(getIntent());
+        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
         
         // all permissions are granted ...
-        messagingClient.sendSuccessfulResponse(sourceNodeId, protocol);
+        permissionsResultClient.sendPermissionsSuccessfulResponse(getIntent());
         
         // or if any permission was rejected (include in your failure message which permission were rejected)
-        messagingClient.sendFailureResponseWithReason(sourceNodeId, protocol, failureMessage);
+        permissionsResultClient.sendPermissionsFailureResponse(getIntent(), failureMessage);
     }
 }
 ```
@@ -267,13 +265,21 @@ of the demo application.
 ### `SensorManager`
 Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
 
-### [`MessagingClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/messaging/MessagingClient.java)
-| **Method**                                                                                                   | **Return type** | **Description**                                                                             |
-|--------------------------------------------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------|
-| `sendSuccessfulResponse(String sourceNodeId, ResultMessagingProtocol protocol)`                              | `void`          | Sends a successful response to an action (e.g., permission request).                        |
-| `sendFailureResponse(String sourceNodeId, ResultMessagingProtocol protocol)`                                 | `void`          | Sends a failure response to an action (mainly for internal use).                            |
-| `sendFailureResponseWithReason(String sourceNodeId, ResultMessagingProtocol protocol, String failureReason)` | `void`          | Sends a failure response to an action, including a message (e.g., permissions not granted). |
-| `sendNewRecord(String sourceNodeId, String path, byte[] record)`                                             | `void`          | Sends a new record of a sensor to the smartphone (for internal use only).                   |
+### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
+| **Static Method**                                                       | **Return type**     | **Description**                                                                                                                                                        |
+|-------------------------------------------------------------------------|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `permissionsToRequestFromIntent(Intent intent)`                         | `ArrayList<String>` | Permissions to request in the custom request permissions activity.                                                                                                     |
+| `permissionsToBeRequested(Context context, ArrayList<String> required)` | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only).                                                                                                 |
+| `requestPermissions(Activity activity, ArrayList<String> permissions)`  | `void`              | Request the specified permissions previously obtained from `permissionsToRequestFromIntent`. You should call this method in your custom request permissions activity.  |
+| `setPermissionsActivity(Context context, Class<?> permissionsActivity)` | `void`              | Sets up the class that will be used for requesting permissions. You should call this method in your MainActivity class once your app has started.                      |
+| `getPermissionsActivity(Context context)`                               | `Class<?>`          | Gets the class that will be used for requesting permissions.                                                                                                           |
+
+
+### [`PermissionsResultClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsResultClient.java)
+| **Method**                                                            | **Return type** | **Description**                                                                                                                                                                 |
+|-----------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `sendPermissionsSuccessfulResponse(Intent intent)`                    | `void`          | Indicates to the smartphone that all requested permissions have been granted                                                                                                    |
+| `sendPermissionsFailureResponse(Intent intent, String failureReason)` | `void`          | Indicates to the smartphone that some requested permissions have not been granted. It includes a message to indicate which permission/s was/were not granted (`failureReason`). |
 
 ### [`CommandClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/command/CommandClient.java)
 | **Method**                                                | **Return type** | **Description**                                                                                               |
@@ -299,23 +305,6 @@ Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSenso
 |------------------|---------------|---------------------------------------------------------------------------------------------|
 | `message`        | `String`      | Content of the message.                                                                     |
 | `inResponseTo`   | `FreeMessage` | If the message is a response to other one, the reference to that message. `null` otherwise. |
-
-
-### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
-| **Static Method**                                                       | **Return type** | **Description**                                                            |
-|-------------------------------------------------------------------------|---------------------|------------------------------------------------------------------------|
-| `permissionsToBeRequested(Context context, ArrayList<String> required)` | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only). |
-| `requestPermissions(Activity activity, ArrayList<String> permissions)`  | `void`              | Request the specified permissions.                                     |
-| `setPermissionsActivity(Context context, Class<?> permissionsActivity)` | `void`              | Sets up the class that will be used for requesting permissions.        |
-| `getPermissionsActivity(Context context)`                               | `Class<?>`          | Gets the class that will be used for requesting permissions.           |
-
-### [`IntentManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/intent/IntentManager.java)
-| **Static Method**                               | **Return type**          | **Description**                                                                                                      |
-|-------------------------------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------|
-| `permissionsToRequestFromIntent(Intent intent)` | `void`                   | Gets the permissions that need to be requested from an intent. To use in your custom permissions requester activity. |
-| `sourceNodeIdFromIntent(Intent intent)`         | `String`                 | Gets the identifier of the smartphone from an intent. To use in your custom permissions requester activity.          |
-| `resultProtocolFromIntent(Intent intent)`       | `ResultMessagingProtocol`| Gets a communication protocol from an intent. To use in your custom permissions requester activity.                  |
-
 
 ## License
 
