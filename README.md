@@ -1,4 +1,6 @@
 # WearOS Sensors
+[![](https://jitpack.io/v/GeotecINIT/WearOSSensors.svg)](https://jitpack.io/#GeotecINIT/WearOSSensors)
+
 The _wearossensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
 (i.e., accelerometer and gyroscope), the magnetometer, the heart rate, and the GPS of an Android WearOS
 smartwatch (if the corresponding sensor is available in the device).
@@ -55,7 +57,7 @@ Then, just add the dependency in your _build.gradle_ (module):
 
 ```groovy
 dependencies {
-    implementation 'com.github.GeotecINIT:WearOSSensors:X.X.X'
+    implementation 'com.github.GeotecINIT:WearOSSensors:1.0.0'
 }
 ```
 
