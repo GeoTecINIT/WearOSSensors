@@ -171,12 +171,12 @@ public class MainActivity extends Activity {
 The library fully handles this for you. You have to do nothing!
 
 #### Start/stop data collection from smartwatch
-In this case, the smartwatch wants to send a _command_ to the smartphone to tell
-it that the smartwatch wants to start/stop the data collection in order to setup
-things in the smartphone side. Then, the smartphone will _instruct_ the smartwatch to start 
-or stop the data collection.
+To start or stop the data collection, the smartphone needs to be updated regarding the change in the data
+collection status. So, if we want to start/stop the data collection from the smartwatch, we have to notify that intention to the smartphone.
+Then, the smartphone will update its internal status and once everything is set up, it will confirm the smartwatch
+that the data collection can be started/stopped, so the smartwatch can act in consequence.
 
-In order to send those _commands_ you can use the [`CommandClient`](#commandclient). Also, the sensors are defined in 
+In order to start/stop the data collection from the smartwatch you can use the [`CommandClient`](#commandclient). Also, the sensors are defined in 
 [`WearSensor`](#wearsensor) and you can get the sensors that are available using the [`SensorManager`](#sensormanager).
 Here you can see a sample usage:
 
