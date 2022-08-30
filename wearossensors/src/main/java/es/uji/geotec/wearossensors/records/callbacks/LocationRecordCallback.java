@@ -17,7 +17,7 @@ public class LocationRecordCallback extends AbstractRecordCallback<LocationRecor
     @Override
     protected byte[] encodeRecords(List<LocationRecord> records) {
         int size = records.size();
-        byte[] bytes = new byte[Integer.BYTES + (Double.BYTES * 3 + Long.BYTES) * size];
+        byte[] bytes = new byte[Integer.BYTES + (Double.BYTES * 3 + Float.BYTES * 4 + Long.BYTES) * size];
 
         ByteBuffer buff = ByteBuffer.wrap(bytes);
         buff.putInt(size);
@@ -25,6 +25,10 @@ public class LocationRecordCallback extends AbstractRecordCallback<LocationRecor
             buff.putDouble(record.getLatitude());
             buff.putDouble(record.getLongitude());
             buff.putDouble(record.getAltitude());
+            buff.putFloat(record.getVerticalAccuracy());
+            buff.putFloat(record.getHorizontalAccuracy());
+            buff.putFloat(record.getSpeed());
+            buff.putFloat(record.getDirection());
             buff.putLong(record.getTimestamp());
         }
 

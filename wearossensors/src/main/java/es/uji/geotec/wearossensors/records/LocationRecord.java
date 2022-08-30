@@ -10,19 +10,20 @@ public class LocationRecord extends Record {
     private double latitude;
     private double longitude;
     private double altitude;
-
-    public LocationRecord(long timestamp, double latitude, double longitude, double altitude) {
-        super(WearSensor.LOCATION, timestamp);
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitude = altitude;
-    }
+    private float verticalAccuracy;
+    private float horizontalAccuracy;
+    private float speed;
+    private float direction;
 
     public LocationRecord(Location location) {
         super(WearSensor.LOCATION, location.getTime());
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
         this.altitude = location.getAltitude();
+        this.verticalAccuracy = location.getAccuracy();
+        this.horizontalAccuracy = location.getAccuracy();
+        this.speed = location.getSpeed();
+        this.direction = location.getBearing();
     }
 
     public double getLatitude() {
@@ -35,5 +36,21 @@ public class LocationRecord extends Record {
 
     public double getAltitude() {
         return altitude;
+    }
+
+    public float getHorizontalAccuracy() {
+        return horizontalAccuracy;
+    }
+
+    public float getVerticalAccuracy() {
+        return verticalAccuracy;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public float getDirection() {
+        return direction;
     }
 }
