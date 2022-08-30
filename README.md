@@ -57,7 +57,7 @@ Then, just add the dependency in your _build.gradle_ (module):
 
 ```groovy
 dependencies {
-    implementation 'com.github.GeotecINIT:WearOSSensors:1.0.0'
+    implementation 'com.github.GeotecINIT:WearOSSensors:1.1.0'
 }
 ```
 
