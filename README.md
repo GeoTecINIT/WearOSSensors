@@ -1,7 +1,7 @@
 # WearOS Sensors
-[![](https://jitpack.io/v/GeotecINIT/WearOSSensors.svg)](https://jitpack.io/#GeotecINIT/WearOSSensors)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.geotecinit/wear-os-sensors/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.geotecinit/wear-os-sensors)
 
-The _wearossensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
+The _wear-os-sensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
 (i.e., accelerometer and gyroscope), the magnetometer, the heart rate, and the GPS of an Android WearOS
 smartwatch (if the corresponding sensor is available in the device).
 
@@ -18,46 +18,17 @@ then receive the collected data from the smartwatch.
 The data collection can be started both from the smartwatch and from the paired smartphone. In addition,
 the library offers a way to communicate with the smartphone by sending messages.
 
-The _wearossensors_ library uses and extends the functionality of the Android 
-[_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors) library, and therefore, it is safe to carry out
+The _wear-os-sensors_ library uses and extends the functionality of the Android 
+[_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors) library, and therefore, it is safe to carry out
 the data collection in the background (i.e., when the app is not in the foreground, or the smartwatch is idle).
 
 
 ## Installation
-To install the library you have to add the [Jitpack](https://jitpack.io) repository to the file where your project
-declares the URLs of the external repositories where the dependencies are looked for:
-
-<details>
-  <summary>build.gradle (project)</summary>
-
-```groovy
-allprojects {
-    repositories {
-        // ...
-        maven { url 'https://jitpack.io' }
-    }
-}
-```
-</details>
-
-<details>
-  <summary>settings.gradle</summary>
-
-```groovy
-dependencyResolutionManagement {
-    repositories {
-        // ...
-        maven { url 'https://jitpack.io' }
-    }
-}
-```
-</details>
-
-Then, just add the dependency in your _build.gradle_ (module):
+To install the library you have to add the dependency in your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'com.github.GeotecINIT:WearOSSensors:1.1.0'
+    implementation 'io.github.geotecinit:wear-os-sensors:1.0.0'
 }
 ```
 
@@ -215,7 +186,7 @@ public class MainActivity extends Activity {
 ```
 
 > **Note**: Here we are using [`Sensor`](#sensor) and [`CollectionConfiguration`](#collectionconfiguration)
-> from [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors).
+> from [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors).
 > Check its documentation for more information.
 
 ### Messaging
@@ -273,7 +244,7 @@ of the demo application.
 | `LOCATION`      | Represents the GPS.                  |
 
 ### `SensorManager`
-Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
+Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
 
 ### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
 | **Static Method**                                                       | **Return type**     | **Description**                                                                                                                                                        |
@@ -298,10 +269,10 @@ Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSenso
 | `sendStopCommand(Sensor sensor)`                          | `void`          | Sends a command to the smartphone to stop the collection of the specified sensor in the smartwatch.           |
 
 #### CollectionConfiguration
-Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors#collectionconfiguration) documentation.
+Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors#collectionconfiguration) documentation.
 
 #### Sensor
-Refer to the [_backgroundsensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
+Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
 
 ### [`PlainMessageClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/plainmessage/PlainMessageClient.java)
 | **Method**                                        | **Return type** | **Description**                                     |
