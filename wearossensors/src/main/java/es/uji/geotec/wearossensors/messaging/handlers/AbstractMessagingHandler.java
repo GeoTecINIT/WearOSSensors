@@ -16,7 +16,7 @@ import es.uji.geotec.wearossensors.notifications.NotificationProvider;
 import es.uji.geotec.wearossensors.permissions.PermissionsManager;
 import es.uji.geotec.wearossensors.records.callbacks.RecordCallbackProvider;
 import es.uji.geotec.wearossensors.sensor.WearSensor;
-import es.uji.geotec.wearossensors.services.WearSensorRecordingService;
+import es.uji.geotec.wearossensors.services.RecordingServiceManager;
 
 public abstract class AbstractMessagingHandler {
 
@@ -25,7 +25,7 @@ public abstract class AbstractMessagingHandler {
 
     public AbstractMessagingHandler(Context context) {
         this.context = context;
-        this.serviceManager = new ServiceManager(context, WearSensorRecordingService.class);
+        this.serviceManager = new ServiceManager(context, RecordingServiceManager.getService(context));
     }
 
     public void handleMessage(MessageEvent event) {
