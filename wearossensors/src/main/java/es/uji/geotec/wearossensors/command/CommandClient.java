@@ -38,7 +38,7 @@ public class CommandClient {
         sendCommand("stop-" + sensor.toString().toLowerCase());
     }
 
-    private void sendCommand(String commandName, int sensorDelay, int batchSize) {
+    protected void sendCommand(String commandName, int sensorDelay, int batchSize) {
         String command = commandFromParameters(commandName, sensorDelay, batchSize);
         sendCommand(command);
     }
