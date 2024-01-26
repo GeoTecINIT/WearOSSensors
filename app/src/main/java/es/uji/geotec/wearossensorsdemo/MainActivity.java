@@ -53,8 +53,11 @@ public class MainActivity extends Activity {
     }
 
     public void onStartSingleCommandTap(View view) {
+        WearSensor selectedSensor = (WearSensor) sensorSpinner.getSelectedItem();
+        boolean requested = PermissionsManager.launchPermissionsRequestIfNeeded(this, selectedSensor.getRequiredPermissions());
+        if (requested) return;
+
         toggleVisibility(stopSingle, startSingle);
-        Sensor selectedSensor = (Sensor) sensorSpinner.getSelectedItem();
         sensorSpinner.setEnabled(false);
 
         CollectionConfiguration config = new CollectionConfiguration(
