@@ -1,7 +1,7 @@
 # WearOS Sensors
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.geotecinit/wear-os-sensors/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.geotecinit/wear-os-sensors)
 
-The _wear-os-sensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
+The _WearOS Sensors_ library is an Android WearOS library that allows to collect data from the IMU sensors
 (i.e., accelerometer and gyroscope), the magnetometer, the heart rate, and the GPS of an Android WearOS
 smartwatch (if the corresponding sensor is available in the device).
 
@@ -11,15 +11,16 @@ plugin (for the [NativeScript](https://nativescript.org) framework).
 The smartphone application counterpart can request to start/stop the data collection on the smartwatch, and
 then receive the collected data from the smartwatch.
 
-> **Warning**: An application built with this library is completely useless if there is not a counterpart
+> [!IMPORTANT] 
+> An application built with this library is completely useless if there is not a counterpart
 > application built with the _nativescript-wearos-sensors_ plugin installed in the paired smartphone.
 > In other words, the smartwatch can not work by itself alone. It requires for a smartphone to work.
 
 The data collection can be started both from the smartwatch and from the paired smartphone. In addition,
 the library offers a way to communicate with the smartphone by sending messages.
 
-The _wear-os-sensors_ library uses and extends the functionality of the Android 
-[_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors) library, and therefore, it is safe to carry out
+The _WearOS Sensors_ library uses and extends the functionality of the Android 
+[_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors) library, and therefore, it is safe to carry out
 the data collection in the background (i.e., when the app is not in the foreground, or the smartwatch is idle).
 
 
@@ -28,7 +29,7 @@ To install the library you have to add the dependency in your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'io.github.geotecinit:wear-os-sensors:1.1.0'
+    implementation 'io.github.geotecinit:wear-os-sensors:1.2.0'
 }
 ```
 
@@ -38,10 +39,23 @@ The library has the following requirements:
 - An Android WearOS smartwatch running WearOS 1.0 (API level 23) or higher. In addition, the smartwatch must
   be paired with a smartphone with the counterpart application installed.
   
-> **Warning**: Both applications (smartwatch and smartphone apps) must have the same [application id](https://developer.android.com/studio/build/configure-app-module#set-application-id).
+> [!IMPORTANT] 
+> Both applications (smartwatch and smartphone apps) must have the same [application id](https://developer.android.com/studio/build/configure-app-module#set-application-id).
 > If that's not the case, the applications will not be able to interact.
 
-> **Note**: Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors) too.
+> [!TIP]
+> Don't forget to check the requirements of [_nativescript-wearos-sensors_](https://github.com/GeoTecINIT/nativescript-wearos-sensors) too.
+
+### Tested WearOS versions and devices
+The library has been tested in the following WearOS versions:
+
+- **Wear OS 2.33** (Android 9 - API 28):
+  - TicWatch Pro 3 GPS
+- **Wear OS 3.5** (Android 11 - API 30):
+  - TicWatch Pro 3 GPS
+  - TicWatch Pro 5
+- **WearOS 4** (Android 13 - API 33):
+  - Samsung Watch4
 
 ## Usage
 The library offers two main features:
@@ -61,16 +75,33 @@ The library offers two main features:
 <details>
   <summary>Heart rate</summary>
 
+  You **must** add the following permission to the manifest:
+
   ```xml
   <uses-permission android:name="android.permission.BODY_SENSORS" />
   ```
+
+  In addition, if your app runs on a WearOS 4+ smartwatch (Android 13 - API 33), add the following permission:
+
+  ```xml
+  <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
+  ```
+
 </details>
 <details>
-<summary>Location</summary>
+  <summary>Location</summary>
+
+  You **must** add the following permission to the manifest:
 
   ```xml
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  ```
+
+  In addition, if your app runs on a WearOS 3+ smartwatch (Android 13 - API 33), add the following permission:
+
+  ```xml
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
   ```
 </details>
 
@@ -90,7 +121,13 @@ has to grant some permissions. The library handles this situation (i.e., when pe
 launches a notification to warn the user that some permissions need to be granted. However, we **do not**
 provide a mechanism to ask the permissions, we delegate that task on the developer. Why? To customise the
 way the permissions are required. In other words, the developer has to provide a class reference of an
-activity for requesting permissions using the [`PermissionsManager`](#permissionsmanager), and the library
+activity for requesting permissions using the [`PermissionsManager.setPermissionsActivity()`](#permissionsmanager). There are two
+ways of requesting permissions:
+
+- If the data collection is started using the paired smartphone, the permissions will be automatically requested. You have to do nothing!
+- If the data collection is started from the smartphone, you should check that the necessary permissions are granted using the [`PermissionsManager.launchPermissionsRequestIfNeeded()`](#permissionsmanager)
+
+and the library
 will start that activity when any permission is required and the user taps into the notification warning.
 
 We have tried to make it easy for you to implement that activity:
@@ -129,6 +166,9 @@ public class YourRequestPermissionsActivity extends FragmentActivity {
 }
 ```
 
+If your app runs in WearOS 4+, the `POST_NOTIFICATIONS` permission will be required. To do so, we also
+provide the [`PermissionsManager.launchRequiredPermissionsRequest()`](#permissionsmanager).
+
 Finally, here is a sample on how to setup your activity for requesting permissions:
 ```java
 public class MainActivity extends Activity {
@@ -136,6 +176,9 @@ public class MainActivity extends Activity {
         // ...
       
         PermissionsManager.setPermissionsActivity(this, YourRequestPermissionsActivity.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionsManager.launchRequiredPermissionsRequest(this);
+        }
     }
 }
 ```
@@ -169,6 +212,10 @@ public class MainActivity extends Activity {
     }
 
     public void onStartSingleCommandTap(Sensor sensor) {
+        // If the sensor requires permissions and have not been granted...
+        boolean requested = PermissionsManager.launchPermissionsRequestIfNeeded(this, sensor.getRequiredPermissions());
+        if (requested) return;
+        
         CollectionConfiguration config = new CollectionConfiguration(
                 selectedSensor,
                 android.hardware.SensorManager.SENSOR_DELAY_GAME,
@@ -185,8 +232,9 @@ public class MainActivity extends Activity {
 }
 ```
 
-> **Note**: Here we are using [`Sensor`](#sensor) and [`CollectionConfiguration`](#collectionconfiguration)
-> from [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors).
+> [!TIP]
+> Here we are using [`Sensor`](#sensor) and [`CollectionConfiguration`](#collectionconfiguration)
+> from [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors).
 > Check its documentation for more information.
 
 ### Messaging
@@ -228,9 +276,10 @@ public class MainActivity extends Activity {
   }
 ```
 
-> **Note**: you can find a full sample of all these features in the [MainActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/MainActivity.java)
-and [RequestPermissionsActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/RequestPermissionsActivity.java) activities
-of the demo application.
+> [!TIP]
+> You can find a full sample of all these features in the [MainActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/MainActivity.java)
+> and [RequestPermissionsActivity](app/src/main/java/es/uji/geotec/wearossensorsdemo/RequestPermissionsActivity.java) activities 
+> of the demo application.
 
 ## API
 
@@ -243,17 +292,23 @@ of the demo application.
 | `HEART_RATE`    | Represents the heart rate monitor.   |
 | `LOCATION`      | Represents the GPS.                  |
 
+Each sensor provide the `getRequiredPermissions()` method to obtain the permissions that need to be
+requested for the specified sensor. Use it along `PermissionsManager.launchPermissionsRequestIfNeeded()`.
+
 ### `SensorManager`
-Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
+Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
 
 ### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
-| **Static Method**                                                       | **Return type**     | **Description**                                                                                                                                                        |
-|-------------------------------------------------------------------------|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `permissionsToRequestFromIntent(Intent intent)`                         | `ArrayList<String>` | Permissions to request in the custom request permissions activity.                                                                                                     |
-| `permissionsToBeRequested(Context context, ArrayList<String> required)` | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only).                                                                                                 |
-| `requestPermissions(Activity activity, ArrayList<String> permissions)`  | `void`              | Request the specified permissions previously obtained from `permissionsToRequestFromIntent`. You should call this method in your custom request permissions activity.  |
-| `setPermissionsActivity(Context context, Class<?> permissionsActivity)` | `void`              | Sets up the class that will be used for requesting permissions. You should call this method in your MainActivity class once your app has started.                      |
-| `getPermissionsActivity(Context context)`                               | `Class<?>`          | Gets the class that will be used for requesting permissions.                                                                                                           |
+| **Static Method**                                                                    | **Return type**     | **Description**                                                                                                                                                                                         |
+|--------------------------------------------------------------------------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `permissionsToRequestFromIntent(Intent intent)`                                      | `ArrayList<String>` | Permissions to request in the custom request permissions activity.                                                                                                                                      |
+| `specialPermissionsToRequestFromIntent(Intent intent)`                               | `ArrayList<String>` | Special permissions to request in the custom request permissions activity.                                                                                                                              |
+| `launchRequiredPermissionsRequest(Activity activity)`                                | `void`              | Launch the permissions activity to request the required permission to post notifications (only WearOS 4+).                                                                                              |
+| `launchPermissionsRequestIfNeeded(Activity activity, ArrayList<String> permissions)` | `boolean`           | Launch the permissions activity to request the specified permissions. Call this method to request the permissions for a specified sensor. Returns `true` if the permissions activity has been launched. |
+| `permissionsToBeRequested(Context context, ArrayList<String> required)`              | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only).                                                                                                                                  |
+| `requestPermissions(Activity activity, ArrayList<String> permissions)`               | `void`              | Request the specified permissions previously obtained from `permissionsToRequestFromIntent`. You should call this method in your custom request permissions activity.                                   |
+| `setPermissionsActivity(Context context, Class<?> permissionsActivity)`              | `void`              | Sets up the class that will be used for requesting permissions. You should call this method in your MainActivity class once your app has started.                                                       |
+| `getPermissionsActivity(Context context)`                                            | `Class<?>`          | Gets the class that will be used for requesting permissions.                                                                                                                                            |
 
 
 ### [`PermissionsResultClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsResultClient.java)
@@ -269,10 +324,10 @@ Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSens
 | `sendStopCommand(Sensor sensor)`                          | `void`          | Sends a command to the smartphone to stop the collection of the specified sensor in the smartwatch.           |
 
 #### CollectionConfiguration
-Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors#collectionconfiguration) documentation.
+Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors#collectionconfiguration) documentation.
 
 #### Sensor
-Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
+Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors) documentation.
 
 ### [`PlainMessageClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/plainmessage/PlainMessageClient.java)
 | **Method**                                        | **Return type** | **Description**                                     |
@@ -292,5 +347,18 @@ Refer to the [_background-sensors_](https://github.com/GeoTecINIT/BackgroundSens
 Apache License 2.0
 
 See [LICENSE](LICENSE).
+
+
+## Author
+
+<a href="https://github.com/matey97" title="Miguel Matey Sanz">
+  <img src="https://avatars3.githubusercontent.com/u/25453537?s=120" alt="Miguel Matey Sanz" width="120"/>
+</a>
+
+
+## Acknowledgements
+
+The development of this library has been possible thanks to the Spanish Ministry of Universities (grant FPU19/05352).
+
 
 
