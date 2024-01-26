@@ -116,7 +116,9 @@ public abstract class AbstractMessagingHandler {
         return sensorManager.isSensorAvailable(wearSensor);
     }
 
-    protected abstract ArrayList<String> getRequiredPermissions();
+    private ArrayList<String> getRequiredPermissions() {
+        return getWearSensorType().getRequiredPermissions();
+    };
 
     protected abstract MessagingProtocol getProtocol();
 
