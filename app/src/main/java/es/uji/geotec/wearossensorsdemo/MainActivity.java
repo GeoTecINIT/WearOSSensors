@@ -2,6 +2,7 @@ package es.uji.geotec.wearossensorsdemo;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +51,9 @@ public class MainActivity extends Activity {
         });
 
         PermissionsManager.setPermissionsActivity(this, RequestPermissionsActivity.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionsManager.launchRequiredPermissionsRequest(this);
+        }
     }
 
     public void onStartSingleCommandTap(View view) {
