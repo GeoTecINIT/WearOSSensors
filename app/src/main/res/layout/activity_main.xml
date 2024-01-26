@@ -6,7 +6,7 @@
     android:background="@color/dark_grey"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
-
+    <requestFocus/>
             <LinearLayout
                 android:id="@+id/linear_layout"
                 android:layout_width="match_parent"
