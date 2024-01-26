@@ -49,9 +49,9 @@ The library has the following requirements:
 ### Tested WearOS versions and devices
 The library has been tested in the following WearOS versions:
 
-- **Wear OS 2.33** (Android 9 - API 28):
+- **WearOS 2.33** (Android 9 - API 28):
   - TicWatch Pro 3 GPS
-- **Wear OS 3.5** (Android 11 - API 30):
+- **WearOS 3.5** (Android 11 - API 30):
   - TicWatch Pro 3 GPS
   - TicWatch Pro 5
 - **WearOS 4** (Android 13 - API 33):
@@ -118,50 +118,45 @@ Before going deeper with the data collection, we have to talk about permissions.
 #### Permissions
 In order to access to the data of the heart rate and the GPS sensors, the user
 has to grant some permissions. The library handles this situation (i.e., when permissions are required), and
-launches a notification to warn the user that some permissions need to be granted. However, we **do not**
-provide a mechanism to ask the permissions, we delegate that task on the developer. Why? To customise the
-way the permissions are required. In other words, the developer has to provide a class reference of an
-activity for requesting permissions using the [`PermissionsManager.setPermissionsActivity()`](#permissionsmanager). There are two
-ways of requesting permissions:
+launches a notification to warn the user that some permissions need to be granted. We can differentiate 
+two main steps in the process:
 
-- If the data collection is started using the paired smartphone, the permissions will be automatically requested. You have to do nothing!
-- If the data collection is started from the smartphone, you should check that the necessary permissions are granted using the [`PermissionsManager.launchPermissionsRequestIfNeeded()`](#permissionsmanager)
-
-and the library
-will start that activity when any permission is required and the user taps into the notification warning.
-
-We have tried to make it easy for you to implement that activity:
-- You can obtain the list of the permissions that are required and also to request them using the  [`PermissionsManager`](#permissionsmanager) API.
-- After the user grants or denies a permission, you have to tell the smartphone that which permissions
-  have been granted and which ones not using the [`PermissionsResultClient`](#permissionsresultclient). 
-  Remember: the smartphone is the one that starts the data collection, including the request for permissions.
+1. Check if permissions are required:
+   - If the data collection is started using the paired smartphone, the check is automatic. You have to do nothing!
+   - If the data collection is started using the smartphone, you need to do the check using the [`PermissionsManager.launchPermissionsRequestIfNeeded()`](#permissionsmanager) method.
+2. Request the required permissions: the library handles mostly of the process by you, but you still have to do execute some steps:
+   - Create an Activity: it will be used by the library to request the permissions. This will allow you to define a UI where some information can be given prior to the permissions request.
+   - In your activity:
+     - Create an instance of the [`PermissionsRequestHandler`](#permissionsrequesthandler) class.
+     - Provide a callback using the [`PermissionsRequestHandler.onPermissionsResult()`]() method. The callback will be called with the result of the request, which can be used to update the UI. After 1 second, the activity will close.
+     - Override the `Activity.onRequestPermissionsResult` and inside it, call [`PermissionsRequestHandler.handleResult()`](#permissionsrequesthandler).
+     - Call the method [`PermissionsRequestHandler.handleRequest()`](#permissionsrequesthandler) to start the permission request.
+   - Inject the Activity to the library using the [`PermissionsManager.setPermissionsActivity()`](#permissionsmanager) method.
   
+
 Here you can see an example of an activity for requesting permissions:
 ```java
 public class YourRequestPermissionsActivity extends FragmentActivity {
-    protected void onCreate(Bundle savedInstanceState) {
-        // ...
 
-        // Get permissions to request
-        ArrayList<String> permissionsToRequest = PermissionsManager.permissionsToRequestFromIntent(getIntent());
-        
+    private PermissionsRequestHandler handler;
+    
+    protected void onCreate(Bundle savedInstanceState) {
         // You can show a message explaining why you are going to request permissions
         // and then...
-        PermissionsManager.requestPermissions(this, permissions);
+      
+        handler = new PermissionsRequestHandler(this);
+        handler.onPermissionsResult(this::updateUI);
+        handler.handleRequest();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        // Check which permissions are granted and which ones rejected
-      
-        // Tell the smartphone if ...
-        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
-        
-        // all permissions are granted ...
-        permissionsResultClient.sendPermissionsSuccessfulResponse(getIntent());
-        
-        // or if any permission was rejected (include in your failure message which permission were rejected)
-        permissionsResultClient.sendPermissionsFailureResponse(getIntent(), failureMessage);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        handler.handleResult(requestCode, permissions, grantResults);
+    }
+
+    private void updateUI(boolean success) {
+        // Update your UI...
     }
 }
 ```
@@ -175,7 +170,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         // ...
       
+        // Inject the permissions Activity
         PermissionsManager.setPermissionsActivity(this, YourRequestPermissionsActivity.class);
+        
+        // Request Android 13+ required permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             PermissionsManager.launchRequiredPermissionsRequest(this);
         }
@@ -301,21 +299,15 @@ Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSens
 ### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
 | **Static Method**                                                                    | **Return type**     | **Description**                                                                                                                                                                                         |
 |--------------------------------------------------------------------------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `permissionsToRequestFromIntent(Intent intent)`                                      | `ArrayList<String>` | Permissions to request in the custom request permissions activity.                                                                                                                                      |
-| `specialPermissionsToRequestFromIntent(Intent intent)`                               | `ArrayList<String>` | Special permissions to request in the custom request permissions activity.                                                                                                                              |
-| `launchRequiredPermissionsRequest(Activity activity)`                                | `void`              | Launch the permissions activity to request the required permission to post notifications (only WearOS 4+).                                                                                              |
-| `launchPermissionsRequestIfNeeded(Activity activity, ArrayList<String> permissions)` | `boolean`           | Launch the permissions activity to request the specified permissions. Call this method to request the permissions for a specified sensor. Returns `true` if the permissions activity has been launched. |
-| `permissionsToBeRequested(Context context, ArrayList<String> required)`              | `ArrayList<String>` | Returns the permissions that need to be requested (internal use only).                                                                                                                                  |
-| `requestPermissions(Activity activity, ArrayList<String> permissions)`               | `void`              | Request the specified permissions previously obtained from `permissionsToRequestFromIntent`. You should call this method in your custom request permissions activity.                                   |
 | `setPermissionsActivity(Context context, Class<?> permissionsActivity)`              | `void`              | Sets up the class that will be used for requesting permissions. You should call this method in your MainActivity class once your app has started.                                                       |
-| `getPermissionsActivity(Context context)`                                            | `Class<?>`          | Gets the class that will be used for requesting permissions.                                                                                                                                            |
 
 
-### [`PermissionsResultClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsResultClient.java)
-| **Method**                                                            | **Return type** | **Description**                                                                                                                                                                 |
-|-----------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sendPermissionsSuccessfulResponse(Intent intent)`                    | `void`          | Indicates to the smartphone that all requested permissions have been granted                                                                                                    |
-| `sendPermissionsFailureResponse(Intent intent, String failureReason)` | `void`          | Indicates to the smartphone that some requested permissions have not been granted. It includes a message to indicate which permission/s was/were not granted (`failureReason`). |
+### [`PermissionsRequestHandler`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/handler/PermissionsRequestHandler.java)
+| **Method**                                                                | **Return type** | **Description**                                                                                                                             |
+|---------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `handleRequest()`                                                         | `void`          | Starts the workflow to request permissions. Call inside your permissions activity.                                                          |
+| `handleResult(int requestCode, String[] permissions, int[] grantResults)` | `void`          | Call inside the overrided `onRequestPermissionsResult` of your permissions activity.                                                        |
+| `onPermissionsResult(PermissionsResult permissionsResult)`                | `void`          | Inject a `PermissionsResult` callback. The callback will be called with `True` if all required permissions were granted, `False` otherwise. |
 
 ### [`CommandClient`](wearossensors/src/main/java/es/uji/geotec/wearossensors/command/CommandClient.java)
 | **Method**                                                | **Return type** | **Description**                                                                                               |
