@@ -9,11 +9,7 @@ import java.util.ArrayList;
 import es.uji.geotec.wearossensors.messaging.ResultMessagingProtocol;
 
 public class IntentManager {
-    public static final String PERMISSIONS_EXTRAS = "PERMISSIONS";
-
     private static final int PENDING_INTENT_RC = 50;
-    private static final String NODE = "NODE";
-    private static final String PROTOCOL = "PROTOCOL";
 
     private IntentManager() {
     }
@@ -21,16 +17,12 @@ public class IntentManager {
     public static PendingIntent pendingIntentFromPermissionsToRequest(
             Context context,
             Class<?> permissionsActivity,
-            ArrayList<String> permissions,
-            String sourceNodeId,
-            ResultMessagingProtocol resultProtocol
+            ArrayList<String> permissions
     ) {
-        Intent permissionRequester = new Intent(context.getApplicationContext(), permissionsActivity);
-        permissionRequester.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        permissionRequester.putStringArrayListExtra(PERMISSIONS_EXTRAS, permissions);
-        permissionRequester.putExtra(NODE, sourceNodeId);
-        permissionRequester.putExtra(PROTOCOL, resultProtocol);
+        Intent permissionRequester = new IntentBuilder()
+                .setContext(context.getApplicationContext(), permissionsActivity)
+                .setPermissionsToRequest(permissions)
+                .build();
 
         return PendingIntent.getActivity(
                 context,
@@ -40,11 +32,44 @@ public class IntentManager {
         );
     }
 
+    public static PendingIntent pendingIntentFromPermissionsToRequest(
+            Context context,
+            Class<?> permissionsActivity,
+            ArrayList<String> permissions,
+            String sourceNodeId,
+            ResultMessagingProtocol resultProtocol
+    ) {
+        Intent permissionRequester = new IntentBuilder()
+                .setContext(context.getApplicationContext(), permissionsActivity)
+                .setPermissionsToRequest(permissions)
+                .setRemoteNodeInfo(sourceNodeId, resultProtocol)
+                .build();
+
+        return PendingIntent.getActivity(
+                context,
+                PENDING_INTENT_RC,
+                permissionRequester,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    public static ArrayList<String> permissionsFromIntent(Intent intent) {
+        return intent.getStringArrayListExtra(IntentBuilder.PERMISSIONS_EXTRAS);
+    }
+
+    public static ArrayList<String> specialPermissionsFromIntent(Intent intent) {
+        return intent.getStringArrayListExtra(IntentBuilder.PERMISSIONS_EXTRAS_SPECIAL);
+    }
+
+    public static boolean isRemoteRequest(Intent intent) {
+        return sourceNodeIdFromIntent(intent) != null;
+    }
+
     public static String sourceNodeIdFromIntent(Intent intent) {
-        return intent.getStringExtra(NODE);
+        return intent.getStringExtra(IntentBuilder.NODE);
     }
 
     public static ResultMessagingProtocol resultProtocolFromIntent(Intent intent) {
-        return (ResultMessagingProtocol) intent.getSerializableExtra(PROTOCOL);
+        return (ResultMessagingProtocol) intent.getSerializableExtra(IntentBuilder.PROTOCOL);
     }
 }

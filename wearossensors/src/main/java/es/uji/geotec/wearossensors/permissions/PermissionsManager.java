@@ -1,6 +1,7 @@
 package es.uji.geotec.wearossensors.permissions;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +20,11 @@ public class PermissionsManager {
     public static final int PERMISSIONS_RC = 51;
 
     public static ArrayList<String> permissionsToRequestFromIntent(Intent intent) {
-        return intent.getStringArrayListExtra(IntentManager.PERMISSIONS_EXTRAS);
+        return IntentManager.permissionsFromIntent(intent);
+    }
+
+    public static ArrayList<String> specialPermissionsToRequestFromIntent(Intent intent) {
+        return IntentManager.specialPermissionsFromIntent(intent);
     }
 
     public static ArrayList<String> permissionsToBeRequested(Context context, ArrayList<String> required) {
@@ -32,6 +37,25 @@ public class PermissionsManager {
         }
 
         return toBeRequested;
+    }
+
+    public static boolean launchPermissionsRequestIfNeeded(Activity activity, ArrayList<String> permissions) {
+        ArrayList<String> permissionsToBeRequested = permissionsToBeRequested(activity, permissions);
+        if (permissionsToBeRequested.size() == 0) {
+            return false;
+        }
+
+        PendingIntent intent = IntentManager.pendingIntentFromPermissionsToRequest(
+                activity,
+                getPermissionsActivity(activity),
+                permissionsToBeRequested
+        );
+        try {
+            intent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     public static void requestPermissions(Activity activity, ArrayList<String> permissions) {
