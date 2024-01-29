@@ -6,71 +6,101 @@
     android:background="@color/dark_grey"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
-    <requestFocus/>
-            <LinearLayout
-                android:id="@+id/linear_layout"
+
+    <requestFocus />
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp"
+            >
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginBottom="10dp"
+                android:text="@string/app_name"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/select_collection_dest"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="@string/select_collection_destination_txt" />
 
-                <TextView
-                    android:id="@+id/text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|top"
-                    android:layout_marginBottom="10dp"
-                    android:text="@string/app_name"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+            <RadioGroup
+                android:id="@+id/destination_collection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:checkedButton="@id/local_collection">
 
-                <TextView
-                    android:id="@+id/info_command_single"
+                <RadioButton
+                    android:id="@+id/local_collection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:justificationMode="inter_word"
-                    android:text='@string/info_command_single_txt' />
+                    android:onClick="onDestinationButtonClicked"
+                    android:text="@string/local_radio" />
 
-                <Spinner
-                    android:id="@+id/sensor_spinner"
+                <RadioButton
+                    android:id="@+id/remote_collection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:spinnerMode="dropdown" />
+                    android:onClick="onDestinationButtonClicked"
+                    android:text="@string/remote_radio" />
+            </RadioGroup>
 
-                <Button
-                    android:id="@+id/start_single_command"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:onClick="onStartSingleCommandTap"
-                    android:text="@string/start_btn" />
+            <TextView
+                android:id="@+id/info_command_single"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text='@string/info_command_single_txt' />
 
-                <Button
-                    android:id="@+id/stop_single_command"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:onClick="onStopSingleCommandTap"
-                    android:visibility="gone"
-                    android:text="@string/stop_btn" />
+            <Spinner
+                android:id="@+id/sensor_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:spinnerMode="dropdown" />
 
-                <TextView
-                    android:id="@+id/info_free_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:justificationMode="inter_word"
-                    android:text="@string/info_free_txt" />
+            <Button
+                android:id="@+id/start_single_command"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:onClick="onStartSingleCommandTap"
+                android:text="@string/start_btn" />
 
-                <Button
-                    android:id="@+id/send_free_message"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"
-                    android:onClick="onSendFreeMessageTap"
-                    android:text="@string/send_free_btn" />
-            </LinearLayout>
+            <Button
+                android:id="@+id/stop_single_command"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:onClick="onStopSingleCommandTap"
+                android:text="@string/stop_btn"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/info_free_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
+                android:text="@string/info_free_txt" />
+
+            <Button
+                android:id="@+id/send_free_message"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:onClick="onSendFreeMessageTap"
+                android:text="@string/send_free_btn" />
+        </LinearLayout>
 </ScrollView>
