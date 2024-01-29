@@ -9,24 +9,27 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 
-import es.uji.geotec.backgroundsensors.collection.CollectionConfiguration;
 import es.uji.geotec.backgroundsensors.sensor.Sensor;
 import es.uji.geotec.backgroundsensors.sensor.SensorManager;
-import es.uji.geotec.wearossensors.command.CommandClient;
 import es.uji.geotec.wearossensors.plainmessage.PlainMessage;
 import es.uji.geotec.wearossensors.plainmessage.PlainMessageClient;
 import es.uji.geotec.wearossensors.permissions.PermissionsManager;
 import es.uji.geotec.wearossensors.sensor.WearSensor;
+import es.uji.geotec.wearossensorsdemo.command.CollectionCommand;
+import es.uji.geotec.wearossensorsdemo.command.LocalCollectionCommand;
+import es.uji.geotec.wearossensorsdemo.command.RemoteCollectionCommand;
 
 public class MainActivity extends Activity {
 
     private LinearLayout linearLayout;
+    private RadioGroup destinationRadio;
     private Button  startSingle, stopSingle;
     private Spinner sensorSpinner;
-
-    private CommandClient commandClient;
+    private CollectionCommand command;
     private PlainMessageClient messageClient;
 
     @Override
@@ -38,7 +41,7 @@ public class MainActivity extends Activity {
         setupButtons();
         setupSpinner();
 
-        commandClient = new CommandClient(this);
+        command = new LocalCollectionCommand(this);
         messageClient = new PlainMessageClient(this);
         messageClient.registerListener(message -> {
             Log.d("MainActivity", "received " + message);
@@ -56,6 +59,20 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void onDestinationButtonClicked(View view) {
+        boolean checked = ((RadioButton) view).isChecked();
+        if (!checked) return;
+
+        switch(view.getId()) {
+            case R.id.local_collection:
+                this.command = new LocalCollectionCommand(this);
+                break;
+            case R.id.remote_collection:
+                this.command = new RemoteCollectionCommand(this);
+                break;
+        }
+    }
+
     public void onStartSingleCommandTap(View view) {
         WearSensor selectedSensor = (WearSensor) sensorSpinner.getSelectedItem();
         boolean requested = PermissionsManager.launchPermissionsRequestIfNeeded(this, selectedSensor.getRequiredPermissions());
@@ -63,21 +80,18 @@ public class MainActivity extends Activity {
 
         toggleVisibility(stopSingle, startSingle);
         sensorSpinner.setEnabled(false);
+        destinationRadio.setEnabled(false);
 
-        CollectionConfiguration config = new CollectionConfiguration(
-                selectedSensor,
-                android.hardware.SensorManager.SENSOR_DELAY_GAME,
-                selectedSensor == WearSensor.HEART_RATE || selectedSensor == WearSensor.LOCATION ? 1 : 50
-        );
-        commandClient.sendStartCommand(config);
+        command.executeStart(selectedSensor);
     }
 
     public void onStopSingleCommandTap(View view) {
         toggleVisibility(startSingle, stopSingle);
-        Sensor selectedSensor = (Sensor) sensorSpinner.getSelectedItem();
         sensorSpinner.setEnabled(true);
+        destinationRadio.setEnabled(true);
 
-        commandClient.sendStopCommand(selectedSensor);
+        WearSensor selectedSensor = (WearSensor) sensorSpinner.getSelectedItem();
+        command.executeStop(selectedSensor);
     }
 
     public void onSendFreeMessageTap(View view) {
@@ -96,6 +110,7 @@ public class MainActivity extends Activity {
     private void setupButtons() {
         startSingle = findViewById(R.id.start_single_command);
         stopSingle = findViewById(R.id.stop_single_command);
+        destinationRadio = findViewById(R.id.destination_collection);
     }
 
     private void setupSpinner() {
