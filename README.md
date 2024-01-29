@@ -123,7 +123,7 @@ two main steps in the process:
 
 1. Check if permissions are required:
    - If the data collection is started using the paired smartphone, the check is automatic. You have to do nothing!
-   - If the data collection is started using the smartphone, you need to do the check using the [`PermissionsManager.launchPermissionsRequestIfNeeded()`](#permissionsmanager) method.
+   - If the data collection is started using the smartwatch, you need to do the check using the [`PermissionsManager.launchPermissionsRequestIfNeeded()`](#permissionsmanager) method.
 2. Request the required permissions: the library handles mostly of the process by you, but you still have to do execute some steps:
    - Create an Activity: it will be used by the library to request the permissions. This will allow you to define a UI where some information can be given prior to the permissions request.
    - In your activity:
