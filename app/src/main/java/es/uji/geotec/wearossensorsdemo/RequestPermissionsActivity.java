@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import es.uji.geotec.wearossensors.intent.IntentManager;
 import es.uji.geotec.wearossensors.permissions.PermissionsManager;
 import es.uji.geotec.wearossensors.permissions.PermissionsResultClient;
 
@@ -22,6 +23,10 @@ public class RequestPermissionsActivity extends FragmentActivity {
     TextView descriptionText;
     ProgressBar progressBar;
     ImageView checkIcon, failIcon;
+
+    ArrayList<String> permissions;
+    ArrayList<String> specialPermissions;
+    boolean specialPermissionsRequested = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +42,17 @@ public class RequestPermissionsActivity extends FragmentActivity {
         delayer.schedule(new TimerTask() {
             @Override
             public void run() {
-                ArrayList<String> permissionsToRequest = PermissionsManager.permissionsToRequestFromIntent(getIntent());
-                requestPermissions(permissionsToRequest);
+                permissions = PermissionsManager.permissionsToRequestFromIntent(getIntent());
+                specialPermissions = PermissionsManager.specialPermissionsToRequestFromIntent(getIntent());
+
+                if (permissions.size() != 0) {
+                    requestPermissions(permissions);
+                } else if (specialPermissions.size() != 0) {
+                    specialPermissionsRequested = true;
+                    requestPermissions(specialPermissions);
+                } else {
+                    finishDeferred();
+                }
             }
         }, 500);
     }
@@ -59,26 +73,49 @@ public class RequestPermissionsActivity extends FragmentActivity {
             }
         }
 
-        progressBar.setVisibility(View.GONE);
-
-        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
-        if (permissionsRejected.size() == 0) {
-            permissionsResultClient.sendPermissionsSuccessfulResponse(getIntent());
-            descriptionText.setText("Thanks! :D");
-            checkIcon.setVisibility(View.VISIBLE);
-            finishDeferred();
+        if (permissionsRejected.size() != 0) {
+            requestFailed(permissionsRejected);
             return;
         }
 
-        String failureMessage = buildFailureMessage(permissionsRejected);
-        permissionsResultClient.sendPermissionsFailureResponse(getIntent(), failureMessage);
-        descriptionText.setText("Permissions denied :(");
-        failIcon.setVisibility(View.VISIBLE);
-        finishDeferred();
+        if (!specialPermissionsRequested && specialPermissions.size() != 0) {
+            Timer delayer = new Timer();
+            delayer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    requestPermissions(specialPermissions);
+                    specialPermissionsRequested = true;
+                }
+            }, 1000);
+            return;
+        }
+
+        requestSucceeded();
     }
 
     private void requestPermissions(ArrayList<String> permissions) {
         PermissionsManager.requestPermissions(this, permissions);
+    }
+
+    private void requestSucceeded() {
+        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
+        boolean remoteRequest = IntentManager.isRemoteRequest(getIntent());
+        if (remoteRequest) {
+            permissionsResultClient.sendPermissionsSuccessfulResponse(getIntent());
+        }
+
+        updateUI(true);
+    }
+
+    private void requestFailed(ArrayList<String> permissionsRejected) {
+        PermissionsResultClient permissionsResultClient = new PermissionsResultClient(this);
+        boolean remoteRequest = IntentManager.isRemoteRequest(getIntent());
+        if (remoteRequest) {
+            String failureMessage = buildFailureMessage(permissionsRejected);
+            permissionsResultClient.sendPermissionsFailureResponse(getIntent(), failureMessage);
+        }
+
+        updateUI(false);
     }
 
     private String buildFailureMessage(ArrayList<String> failures) {
@@ -92,6 +129,18 @@ public class RequestPermissionsActivity extends FragmentActivity {
         }
 
         return sb.toString();
+    }
+
+    private void updateUI(boolean success) {
+        progressBar.setVisibility(View.GONE);
+        if (success) {
+            descriptionText.setText("Thanks! :D");
+            checkIcon.setVisibility(View.VISIBLE);
+        } else {
+            descriptionText.setText("Permissions denied :(");
+            failIcon.setVisibility(View.VISIBLE);
+        }
+        finishDeferred();
     }
 
     private void finishDeferred() {

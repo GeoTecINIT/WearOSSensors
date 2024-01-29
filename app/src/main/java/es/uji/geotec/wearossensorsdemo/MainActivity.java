@@ -2,6 +2,7 @@ package es.uji.geotec.wearossensorsdemo;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -50,11 +51,17 @@ public class MainActivity extends Activity {
         });
 
         PermissionsManager.setPermissionsActivity(this, RequestPermissionsActivity.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionsManager.launchRequiredPermissionsRequest(this);
+        }
     }
 
     public void onStartSingleCommandTap(View view) {
+        WearSensor selectedSensor = (WearSensor) sensorSpinner.getSelectedItem();
+        boolean requested = PermissionsManager.launchPermissionsRequestIfNeeded(this, selectedSensor.getRequiredPermissions());
+        if (requested) return;
+
         toggleVisibility(stopSingle, startSingle);
-        Sensor selectedSensor = (Sensor) sensorSpinner.getSelectedItem();
         sensorSpinner.setEnabled(false);
 
         CollectionConfiguration config = new CollectionConfiguration(
