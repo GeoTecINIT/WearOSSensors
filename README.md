@@ -182,9 +182,58 @@ public class MainActivity extends Activity {
 ```
 
 #### Start/stop data collection from smartphone
-The library fully handles this for you. You have to do nothing!
+The library fully handles this for you. You can start and stop the data collection from the smartphone
+and receive the collected data. You have to do nothing!
 
 #### Start/stop data collection from smartwatch
+When starting the data collection from the smartwatch, you can chose where the collected data will be
+delivered: to the smartwatch itself or to the paired smartphone.
+
+##### Obtain the data in the smartwatch
+You can use the [`ServiceManager`](#servicemanager) provided by _Background Sensors_ to start and stop
+the data collection and receive the data in the device: 
+
+```java
+public class MainActivity extends Activity {
+    // ...
+    private CommandClient commandClient;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // ...
+        sensorManager = new SensorManager(context);
+        serviceManager = new ServiceManager(this, WearSensorRecordingService.class);
+    }
+    
+    public void setupUI() {
+        List<Sensor> availableSensors = sensorManager.availableSensors(WearSensor.values());
+    }
+
+    public void onStartSingleCommandTap(WearSensor sensor) {
+        CollectionConfiguration config = new CollectionConfiguration(
+                selectedSensor,
+                android.hardware.SensorManager.SENSOR_DELAY_GAME,
+                selectedSensor == WearSensor.HEART_RATE || selectedSensor == WearSensor.LOCATION ? 1 : 50
+        );
+        serviceManager.startCollection(config, records -> {
+            // ...
+        });
+    }
+
+    public void onStopSingleCommandTap(Sensor sensor) {
+        serviceManager.stopCollection(sensor, records -> {
+            // ...
+        });
+    }
+    
+    // ...
+}
+```
+
+> [!TIP]
+> Please, refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors#servicemanager) documentation.
+
+##### Obtain the data in the smartphone
 To start or stop the data collection, the smartphone needs to be updated regarding the change in the data
 collection status. So, if we want to start/stop the data collection from the smartwatch, we have to notify that intention to the smartphone.
 Then, the smartphone will update its internal status and once everything is set up, it will confirm the smartwatch
@@ -295,6 +344,9 @@ requested for the specified sensor. Use it along `PermissionsManager.launchPermi
 
 ### `SensorManager`
 Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors#sensormanager) documentation.
+
+### `ServiceManager`
+Refer to the [_Background Sensors_](https://github.com/GeoTecINIT/BackgroundSensors#servicemanager) documentation.
 
 ### [`PermissionsManager`](wearossensors/src/main/java/es/uji/geotec/wearossensors/permissions/PermissionsManager.java)
 | **Static Method**                                                                    | **Return type**     | **Description**                                                                                                                                                                                         |
