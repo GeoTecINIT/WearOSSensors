@@ -15,4 +15,12 @@ public class HeartRateRecord extends Record {
     public int getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "HeartRateRecord{" +
+                "timestamp=" + getTimestamp() +
+                ", value=" + value +
+                '}';
+    }
 }

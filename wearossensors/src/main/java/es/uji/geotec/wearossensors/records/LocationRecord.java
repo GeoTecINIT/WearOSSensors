@@ -53,4 +53,18 @@ public class LocationRecord extends Record {
     public float getDirection() {
         return direction;
     }
+
+    @Override
+    public String toString() {
+        return "LocationRecord{" +
+                "timestamp=" + getTimestamp() +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", altitude=" + altitude +
+                ", verticalAccuracy=" + verticalAccuracy +
+                ", horizontalAccuracy=" + horizontalAccuracy +
+                ", speed=" + speed +
+                ", direction=" + direction +
+                '}';
+    }
 }
