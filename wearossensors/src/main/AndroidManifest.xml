@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application>
         <service android:name=".services.SensorMessagingListenerService" android:exported="true">
@@ -36,6 +37,11 @@
             </intent-filter>
         </service>
 
-        <service android:name=".services.WearSensorRecordingService" android:exported="true" />
+        <service android:name=".services.WearSensorRecordingService"
+            android:foregroundServiceType="specialUse"
+            android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Foreground service for handling data collection from sensors."/>
+        </service>
     </application>
 </manifest>
