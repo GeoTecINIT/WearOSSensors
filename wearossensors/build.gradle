@@ -92,8 +92,8 @@ publishing {
             url = isReleaseVersion ? releaseRepo : snapshotRepo
 
             credentials {
-                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
-                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+                username = findProperty("ossrhToken") ?: System.getenv("OSSRH_TOKEN")
+                password = findProperty("ossrhTokenPassword") ?: System.getenv("OSSRH_TOKEN_PASSWORD")
             }
 
             mavenContent {

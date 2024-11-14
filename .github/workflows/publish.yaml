@@ -38,5 +38,5 @@ jobs:
       - name: Publish package
         run: ./gradlew publish -Psigning.keyId=${{secrets.OSSRH_GPG_SECRET_KEY_ID}} -Psigning.password=${{secrets.OSSRH_GPG_SECRET_KEY_PASSWORD}} -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg) --warn --stacktrace
         env:
-          OSSRH_USERNAME: ${{secrets.OSSRH_USERNAME}}
-          OSSRH_PASSWORD: ${{secrets.OSSRH_PASSWORD}}
+          OSSRH_TOKEN: ${{secrets.OSSRH_TOKEN}}
+          OSSRH_TOKEN_PASSWORD: ${{secrets.OSSRH_TOKEN_PASSWORD}}
