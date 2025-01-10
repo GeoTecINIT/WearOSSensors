@@ -29,7 +29,7 @@ To install the library you have to add the dependency in your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'io.github.geotecinit:wear-os-sensors:1.3.0'
+    implementation 'io.github.geotecinit:wear-os-sensors:1.3.1'
 }
 ```
 
