@@ -5,6 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
 import es.uji.geotec.backgroundsensors.record.accumulator.RecordAccumulator;
+import es.uji.geotec.backgroundsensors.time.TimeProvider;
 import es.uji.geotec.wearossensors.records.HeartRateRecord;
 import es.uji.geotec.wearossensors.sensor.WearSensor;
 
@@ -13,10 +14,12 @@ public class HeartRateSensorListener implements SensorEventListener {
 
     private WearSensor sensor;
     private RecordAccumulator accumulator;
+    private TimeProvider timeProvider;
 
-    public HeartRateSensorListener(RecordAccumulator recordAccumulator) {
+    public HeartRateSensorListener(RecordAccumulator recordAccumulator, TimeProvider timeProvider) {
         this.sensor = WearSensor.HEART_RATE;
         this.accumulator = recordAccumulator;
+        this.timeProvider = timeProvider;
     }
 
     @Override
@@ -25,8 +28,10 @@ public class HeartRateSensorListener implements SensorEventListener {
             return;
 
         int value = (int) event.values[0];
-
-        HeartRateRecord record = new HeartRateRecord(System.currentTimeMillis(), value);
+        HeartRateRecord record = new HeartRateRecord(
+            timeProvider.getTimestampFromElapsedNanos(event.timestamp),
+            value
+        );
         accumulator.accumulateRecord(record);
     }
 

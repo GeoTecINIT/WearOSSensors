@@ -24,7 +24,7 @@ public class SensorListenerProvider {
             case MAGNETOMETER:
                 return new TriAxialSensorListener(wearSensor, recordAccumulator, timeProvider);
             case HEART_RATE:
-                return new HeartRateSensorListener(recordAccumulator);
+                return new HeartRateSensorListener(recordAccumulator, timeProvider);
             default:
                 return null;
         }
